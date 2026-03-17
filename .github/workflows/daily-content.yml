@@ -1,0 +1,15 @@
+name: Daily Content Generation
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # Run at 06:00 UTC every day
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+jobs:
+  auto-generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping AI Content API
+        run: |
+          curl -X POST "${{ secrets.SITE_URL }}/api/admin/auto-generate" \
+          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

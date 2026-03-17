@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+:root {
+  /* Color Palette - Gilded Noir (Luxury Redesign) */
+  --background: #ffffff;
+  --foreground: #0a0a0a; /* Deep Matte Black */
+
+  --primary: #0a0a0a;
+  --primary-foreground: #ffffff;
+
+  --secondary: #c2410c; /* Heritage Orange - Brand Color */
+  --secondary-foreground: #ffffff;
+
+  --accent: #f4f1ea; /* Soft Pearl/Stone */
+  --muted: #6b7280;
+
+  --border: #e2e2e2;
+  --input: #e2e2e2;
+  --ring: #c2410c;
+
+  /* Luxury Shadows */
+  --shadow-luxury: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+  --shadow-brand: 0 4px 20px -5px rgba(194, 65, 12, 0.2);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+
+  --font-serif: var(--font-playfair);
+  --font-sans: var(--font-inter);
+  
+  --shadow-luxury: var(--shadow-luxury);
+  --shadow-brand: var(--shadow-brand);
+}
+
+/* Luxury Utility Classes */
+.luxury-glass {
+  @apply bg-white/80 backdrop-blur-md border border-white/20;
+}
+
+.luxury-card {
+  @apply border border-border shadow-[var(--shadow-luxury)] hover:shadow-[var(--shadow-brand)] transition-all duration-500;
+}
+
+.text-editorial {
+  @apply font-serif leading-[1.2] tracking-tight;
+}
+
+.brand-gradient {
+  background-image: linear-gradient(135deg, #c2410c 0%, #ea580c 50%, #c2410c 100%);
+}
+
+.text-brand {
+  background-image: linear-gradient(135deg, #c2410c 0%, #ea580c 50%, #c2410c 100%);
+  @apply bg-clip-text text-transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+.font-serif {
+  font-family: var(--font-playfair), serif;
+}
+
+.font-sans {
+  font-family: var(--font-inter), sans-serif;
+}
