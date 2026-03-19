@@ -171,13 +171,13 @@ export default function AiEnginePortal() {
                 <div className="relative z-10 space-y-6 max-w-2xl">
                     <h2 className="font-serif text-3xl font-black italic text-secondary">A.I. Engine Configuration</h2>
                     <p className="text-white/60 font-sans font-light leading-relaxed">
-                        The content engine is currently using <span className="text-white font-bold">Gemini 2.0 Flash</span>. 
+                        The content engine is currently using <span className="text-white font-bold">Llama 3.1 8B (via Groq)</span>. 
                         To pause the daily morning uploads, you must disable the <span className="text-secondary italic">"Daily Content Generation"</span> workflow in your GitHub Repository settings.
                     </p>
                     <div className="pt-4 flex space-x-4">
                         <div className="bg-white/5 border border-white/10 p-4 rounded-sm flex-1">
                             <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Model Version</p>
-                            <p className="font-sans text-sm font-bold">gemini-2.0-flash</p>
+                            <p className="font-sans text-sm font-bold">llama-3.1-8b-instant</p>
                         </div>
                         <div className="bg-white/5 border border-white/10 p-4 rounded-sm flex-1">
                             <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Authorization</p>

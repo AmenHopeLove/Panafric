@@ -62,7 +62,7 @@ export default function NewsManagement() {
         if (!confirm("Trigger AI to generate a fresh news article?")) return;
         setActionLoading(true);
         try {
-            const res = await fetch('/api/admin/auto-generate', { 
+            const res = await fetch('/api/admin/generate-news', { 
                 method: 'POST',
                 headers: {
                     'Authorization': 'Bearer palf_content_engine_secret_2026'

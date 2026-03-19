@@ -61,7 +61,7 @@ export default function InsightsManagement() {
         if (!confirm("Trigger AI to generate a fresh legal insight?")) return;
         setActionLoading(true);
         try {
-            const res = await fetch('/api/admin/auto-generate', { 
+            const res = await fetch('/api/admin/generate-insight', { 
                 method: 'POST',
                 headers: {
                     'Authorization': 'Bearer palf_content_engine_secret_2026'

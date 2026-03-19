@@ -60,9 +60,9 @@ export default function InsightsDetailClient({ article }: { article: any }) {
                                     <button className="h-10 w-10 border border-border flex items-center justify-center hover:bg-black hover:text-white transition-all">
                                         <Twitter size={16} />
                                     </button>
-                                    <button className="h-10 w-10 border border-border flex items-center justify-center hover:bg-black hover:text-white transition-all">
+                                    <a href="https://www.linkedin.com/company/106602144/admin/dashboard/" target="_blank" rel="noopener noreferrer" className="h-10 w-10 border border-border flex items-center justify-center hover:bg-black hover:text-white transition-all">
                                         <Linkedin size={16} />
-                                    </button>
+                                    </a>
                                     <button className="h-10 w-10 border border-border flex items-center justify-center hover:bg-black hover:text-white transition-all">
                                         <Facebook size={16} />
                                     </button>

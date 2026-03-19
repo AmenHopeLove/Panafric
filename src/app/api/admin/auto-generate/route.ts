@@ -1,6 +1,7 @@
-import { google } from '@ai-sdk/google';
+import { groq } from '@ai-sdk/groq';
 import { generateText } from 'ai';
 import { supabase } from '@/lib/supabase-client';
+import { getRandomUnsplashImage } from '@/lib/unsplash-pool';
 
 export const maxDuration = 60;
 
@@ -19,7 +20,7 @@ export async function POST(req: Request) {
         }
 
         // Potential model names to try
-        const model = google('gemini-1.5-flash');
+        const model = groq('llama-3.1-8b-instant');
 
         let eventData, ventureData, newsData, insightData;
         let aiUsed = false;
@@ -36,41 +37,30 @@ export async function POST(req: Request) {
             };
 
             console.log("AI ENGINE: Attempting AI generation...");
+            const unsplashList = `For image_url, you MUST output ONLY ONE WORD from this exact list representing the topic: health, science, nature, technology, finance, law, education, africa, startup, industry, city, team, corporate, meeting, infrastructure`;
+
+            const isLegalNews = Math.random() < 0.4;
+            const newsTopicFocus = isLegalNews 
+                ? "The news topic MUST be strictly about Legal and Law (e.g., African jurisprudence, legal frameworks, new legislation, courts)." 
+                : "The news topic MUST be about general African affairs (e.g., business, technology, finance, health, environment, infrastructure) and NOT about law.";
+
             eventData = await generateSafe("Generate PALF webinar event JSON with title, description, event_type (webinar/roundtable), highlights (array).");
             ventureData = await generateSafe("Generate PALF venture JSON with title, location, category (Strategic/Corporate/Governmental).");
-            newsData = await generateSafe("Generate PALF news JSON with title, excerpt, content, category, author, image_url.");
-            insightData = await generateSafe("Generate PALF insight JSON with title, excerpt, content, category, author, image_url.");
+            newsData = await generateSafe(`Generate PALF news JSON with title, excerpt, content, category, author, image_url. ${newsTopicFocus} ${unsplashList}`);
+            insightData = await generateSafe("Generate PALF insight JSON with title, excerpt, content, category, author, image_url. " + unsplashList);
+            
+            // Assign mathematically random image from scraped pool
+            if (newsData.image_url) newsData.image_url = getRandomUnsplashImage(newsData.image_url);
+            if (insightData.image_url) insightData.image_url = getRandomUnsplashImage(insightData.image_url);
+            
+            // Enforce default author
+            newsData.author = "Amen Kingdom";
+            insightData.author = "Amen Kingdom";
+            
             aiUsed = true;
         } catch (aiError: any) {
-            console.warn("AI ENGINE: AI failed, using high-quality local templates. Error:", aiError.message);
-            // High quality fallbacks
-            eventData = {
-                title: "Emerging Regulatory Frameworks in Africa 2026",
-                description: "A comprehensive briefing on the shifting legal landscapes for multinational corporations.",
-                event_type: "webinar",
-                highlights: ["Compliance Evolution", "Regional Integration", "Digital Governance"]
-            };
-            ventureData = {
-                title: "West African Energy Infrastructure JV",
-                location: "Ghana / Nigeria / Ivory Coast",
-                category: "Strategic"
-            };
-            newsData = {
-                title: "PALF Expands Regional Reach with New Strategic Alliances",
-                excerpt: "The firm continues its mission to provide seamless cross-border legal solutions.",
-                content: "The Pan Afric Law Firm is proud to announce the expansion of its network across key East African markets. This strategic move strengthens our ability to support clients navigating complex regulatory environments and massive infrastructure projects...",
-                category: "Firm News",
-                author: "Pan Afric Law Firm Content Engine",
-                image_url: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop"
-            };
-            insightData = {
-                title: "Navigating the New Ethiopian Investment Proclamation",
-                excerpt: "An in-depth analysis of what the 2026 changes mean for international investors.",
-                content: "With the latest updates to the Investment Proclamation, Ethiopia has signaled a significant shift towards market liberalization. Our analysis covers the key changes in sector-specific restrictions, administrative streamlined processes, and the جدید dispute resolution mechanisms...",
-                category: "Ethiopian Legal",
-                author: "Pan Afric Editorial Team",
-                image_url: "https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop"
-            };
+            console.error("AI ENGINE: AI failed. Error:", aiError.message);
+            return new Response(JSON.stringify({ error: "AI Generation Failed: " + aiError.message }), { status: 500 });
         }
 
         console.log("AI ENGINE: Database insertion...");

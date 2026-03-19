@@ -21,7 +21,7 @@ export default function Footer() {
                             "Africa's premier legal collaboration platform connecting expertise, opportunity, and justice across borders."
                         </p>
                         <div className="flex space-x-6">
-                            <Link href="#" className="text-muted hover:text-secondary transition-all transform hover:-translate-y-1"><Linkedin size={22} /></Link>
+                            <a href="https://www.linkedin.com/company/106602144/admin/dashboard/" target="_blank" rel="noopener noreferrer" className="text-muted hover:text-secondary transition-all transform hover:-translate-y-1"><Linkedin size={22} /></a>
                             <Link href="#" className="text-muted hover:text-secondary transition-all transform hover:-translate-y-1"><Twitter size={22} /></Link>
                         </div>
                     </div>
