@@ -76,7 +76,7 @@ export default function PracticeAreas() {
                     <div className="grid lg:grid-cols-2 gap-12">
                         <div className="h-[600px] overflow-hidden rounded-[60px] shadow-2xl border-4 border-accent relative group">
                             <img
-                                src="https://images.unsplash.com/photo-1521791136064-7986c295944b?auto=format&fit=crop&q=80&w=2000"
+                                src="/images/ethiopian-collaboration.png"
                                 alt="Professional Legal Collaboration"
                                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
                             />
@@ -84,7 +84,7 @@ export default function PracticeAreas() {
                         </div>
                         <div className="h-[600px] overflow-hidden rounded-[60px] shadow-2xl border-4 border-accent relative group">
                             <img
-                                src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=2000"
+                                src="/images/ethiopian-legal-team.png"
                                 alt="Ethical Legal Standards"
                                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2000ms]"
                             />
@@ -110,7 +110,7 @@ export default function PracticeAreas() {
                         </div>
                         <div className="lg:w-1/2 h-[750px] overflow-hidden">
                             <img
-                                src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000"
+                                src="/images/ethiopian-trade.png"
                                 alt="Ethiopian Trade & Logistics"
                                 className="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 group-hover:scale-110 transition-all duration-[3000ms]"
                             />
