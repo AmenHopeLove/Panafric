@@ -6,42 +6,7 @@ import { supabase } from "@/lib/supabase-client";
 import { useLanguage } from "@/context/LanguageContext";
 import Link from "next/link";
 
-const MEMBERS = [
-    {
-        id: 1,
-        name: "Dr. Biruk Haile",
-        firm: "Pan Afric Law Firm & Network",
-        location: "Addis Ababa, Ethiopia",
-        expertise: "Corporate & Investment Law",
-        image: "https://images.unsplash.com/photo-1507679799987-c7377f323b51?auto=format&fit=crop&q=80&w=2000"
-    },
-    {
-        id: 2,
-        name: "Sarah Oluchi",
-        firm: "Continental Legal Hub",
-        location: "Lagos, Nigeria",
-        expertise: "International Trade & Compliance",
-        image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=2000"
-    },
-    {
-        id: 3,
-        name: "Kofi Mensah",
-        firm: "Heritage Solicitors",
-        location: "Accra, Ghana",
-        expertise: "Real Estate & Intellectual Property",
-        image: "https://images.unsplash.com/photo-1589156280159-27698a70f29e?auto=format&fit=crop&q=80&w=2000"
-    },
-    {
-        id: 4,
-        name: "Amanuel Tesfaye",
-        firm: "Addis Corporate Advisory",
-        location: "Addis Ababa, Ethiopia",
-        expertise: "Litigation & Dispute Resolution",
-        image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=2000"
-    }
-];
-
-const COUNTRIES = ["All Countries", "Ethiopia", "Nigeria", "Ghana", "Kenya", "South Africa"];
+const MEMBERS: any[] = [];const COUNTRIES = ["All Countries", "Ethiopia", "Nigeria", "Ghana", "Kenya", "South Africa"];
 const EXPERTISE = ["All Expertise", "Corporate", "Trade", "Litigation", "Real Estate", "IP"];
 
 export default function NetworkPage() {
@@ -169,7 +134,7 @@ export default function NetworkPage() {
         }
     };
 
-    const allMembers = [...MEMBERS, ...dbMembers];
+    const allMembers = dbMembers;
 
     const filteredMembers = allMembers.filter(member => {
         const matchesSearch = member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
