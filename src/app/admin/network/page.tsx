@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase-client";
 import {
     Users,
@@ -16,7 +16,8 @@ import {
     Loader2,
     CheckCircle2,
     XCircle,
-    AlertCircle
+    AlertCircle,
+    Camera
 } from "lucide-react";
 
 export default function NetworkManagement() {
@@ -24,6 +25,8 @@ export default function NetworkManagement() {
     const [loading, setLoading] = useState(true);
     const [selectedApp, setSelectedApp] = useState<any | null>(null);
     const [actionLoading, setActionLoading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         fetchApplications();
@@ -42,6 +45,46 @@ export default function NetworkManagement() {
             setApplications(data || []);
         }
         setLoading(false);
+    }
+
+    async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file || !selectedApp) return;
+
+        setUploading(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+            const filePath = `network/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('career-media')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('career-media')
+                .getPublicUrl(filePath);
+
+            // Update database
+            const { error: dbError } = await supabase
+                .from('network_applications')
+                .update({ profile_image_url: publicUrl })
+                .eq('id', selectedApp.id);
+
+            if (dbError) throw dbError;
+
+            // Update local state
+            setApplications(applications.map(a => a.id === selectedApp.id ? { ...a, profile_image_url: publicUrl } : a));
+            setSelectedApp({ ...selectedApp, profile_image_url: publicUrl });
+
+        } catch (error: any) {
+            console.error('Error uploading image:', error);
+            alert('Error uploading image: ' + error.message);
+        } finally {
+            setUploading(false);
+        }
     }
 
     async function updateStatus(id: number, newStatus: string) {
@@ -122,13 +165,26 @@ export default function NetworkManagement() {
                         <div className="p-10 border-b border-border space-y-8">
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center space-x-6">
-                                    {selectedApp.profile_image_url ? (
-                                        <img src={selectedApp.profile_image_url} className="h-20 w-20 rounded-full object-cover border-2 border-secondary/20 shadow-md" alt="" />
-                                    ) : (
-                                        <div className="h-20 w-20 rounded-full bg-gray-100 flex items-center justify-center border-2 border-dashed border-border text-muted">
-                                            <User size={32} />
+                                    <div className="relative group">
+                                        <div 
+                                            onClick={() => fileInputRef.current?.click()}
+                                            className="h-20 w-20 rounded-full bg-gray-100 flex items-center justify-center border-2 border-dashed border-border text-muted cursor-pointer hover:border-secondary transition-all overflow-hidden relative"
+                                        >
+                                            {selectedApp.profile_image_url ? (
+                                                <>
+                                                    <img src={selectedApp.profile_image_url} className="w-full h-full object-cover" alt="" />
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                                        <Camera size={20} className="text-white" />
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {uploading ? <Loader2 className="animate-spin text-muted" size={20} /> : <Camera size={20} className="text-muted group-hover:text-secondary" />}
+                                                </>
+                                            )}
                                         </div>
-                                    )}
+                                        <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleImageUpload} />
+                                    </div>
                                     <div className="space-y-2">
                                         <h2 className="font-serif text-3xl font-black italic">{selectedApp.full_name}</h2>
                                         <div className="flex flex-wrap gap-6">

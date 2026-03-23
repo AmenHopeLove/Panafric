@@ -53,7 +53,7 @@ export default function NewsEditor({ params }: { params: Promise<{ id?: string }
 
         try {
             const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random()}.${fileExt}`;
+            const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
             const filePath = `news/${fileName}`;
 
             const { error: uploadError } = await supabase.storage
