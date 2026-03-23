@@ -1,5 +1,12 @@
 -- 1. Upgrade Profiles Roles
+-- First, identify any rows that might have non-standard roles and default them to 'client'
+UPDATE profiles SET role = 'client' WHERE role NOT IN ('admin', 'staff', 'member');
+
+-- Drop the old constraint (it might have a different system-generated name, so we try multiple common names)
 ALTER TABLE profiles DROP CONSTRAINT IF EXISTS profiles_role_check;
+ALTER TABLE profiles DROP CONSTRAINT IF EXISTS profiles_role_check1;
+
+-- Apply the expanded constraint
 ALTER TABLE profiles ADD CONSTRAINT profiles_role_check CHECK (role IN ('admin', 'staff', 'client', 'member'));
 
 -- 2. Link Cases to Clients

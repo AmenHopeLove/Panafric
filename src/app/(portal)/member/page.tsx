@@ -11,7 +11,8 @@ import {
   CheckCircle2, 
   Globe,
   MessageSquare,
-  Users
+  Users,
+  Clock
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
