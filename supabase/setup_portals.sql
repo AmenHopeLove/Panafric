@@ -75,3 +75,23 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+-- 7. Automated Member Promotion on Approval
+CREATE OR REPLACE FUNCTION public.promote_member_on_approval()
+RETURNS trigger AS $$
+BEGIN
+  IF (NEW.status = 'approved' AND NEW.user_id IS NOT NULL) THEN
+    UPDATE public.profiles 
+    SET role = 'member' 
+    WHERE id = NEW.user_id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_member_application_approved ON public.network_applications;
+CREATE TRIGGER on_member_application_approved
+  AFTER UPDATE OF status ON public.network_applications
+  FOR EACH ROW 
+  WHEN (NEW.status = 'approved')
+  EXECUTE PROCEDURE public.promote_member_on_approval();
