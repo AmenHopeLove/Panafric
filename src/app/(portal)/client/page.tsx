@@ -11,7 +11,9 @@ import {
   Video, 
   Download,
   Shield,
-  Briefcase
+  Briefcase,
+  Copy,
+  Check
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -29,6 +31,14 @@ export default function ClientDashboard() {
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [copied, setCopied] = useState(false);
+
+  const copyMeetingLink = () => {
+    const link = `${window.location.origin}/meeting/consultation-${user?.id?.slice(0, 8)}`;
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -203,7 +213,18 @@ export default function ClientDashboard() {
               <p className="text-muted font-sans font-light italic">March 27, 2026 @ 10:00 AM</p>
             </div>
 
-            <button className="w-full brand-gradient py-5 rounded-2xl font-sans font-black uppercase tracking-widest text-[10px] flex items-center justify-center space-x-3 shadow-brand hover:scale-105 transition-all">
+            <button 
+              onClick={copyMeetingLink}
+              className="w-full bg-white/10 text-white py-4 rounded-2xl font-sans font-black uppercase tracking-widest text-[10px] flex items-center justify-center space-x-3 hover:bg-white/20 transition-all border border-white/10"
+            >
+              {copied ? <Check size={16} className="text-secondary" /> : <Copy size={16} />}
+              <span>{copied ? "Copied Link" : "Invite Participant"}</span>
+            </button>
+
+            <button 
+              onClick={() => window.location.href = `/meeting/consultation-${user?.id?.slice(0, 8)}`}
+              className="w-full brand-gradient py-5 rounded-2xl font-sans font-black uppercase tracking-widest text-[10px] flex items-center justify-center space-x-3 shadow-brand hover:scale-105 transition-all"
+            >
               <Video size={16} />
               <span>Join Secure Room</span>
             </button>
