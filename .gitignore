@@ -31,3 +31,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# temp deployment and media files
+deploy.zip
+temp_deploy/
+*.png
+page.html
+cookies.txt
+test_file.txt
