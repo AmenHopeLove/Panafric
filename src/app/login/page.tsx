@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase-client";
 import { useRouter } from "next/navigation";
 import { Scale, Loader2, AlertCircle } from "lucide-react";
@@ -12,6 +12,21 @@ export default function AdminLogin() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
+
+    useEffect(() => {
+        const checkSession = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+                if (profile) {
+                    if (['admin', 'staff'].includes(profile.role)) router.push("/admin");
+                    else if (profile.role === 'client') router.push("/client");
+                    else if (profile.role === 'member') router.push("/member");
+                }
+            }
+        };
+        checkSession();
+    }, [router]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,14 +47,24 @@ export default function AdminLogin() {
                 .eq('id', data.user.id)
                 .single();
 
-            if (profileError || !profile || !['admin', 'staff'].includes(profile.role)) {
+            if (profileError || !profile) {
                 await supabase.auth.signOut();
-                throw new Error("Unauthorized: You do not have administrative access.");
+                throw new Error("Unauthorized: Cannot retrieve your access profile.");
             }
 
             // Success! Refresh to sync cookies then push
             router.refresh();
-            router.push("/admin");
+            
+            if (['admin', 'staff'].includes(profile.role)) {
+                router.push("/admin");
+            } else if (profile.role === 'client') {
+                router.push("/client");
+            } else if (profile.role === 'member') {
+                router.push("/member");
+            } else {
+                await supabase.auth.signOut();
+                throw new Error("Unauthorized: Invalid account role.");
+            }
         } catch (err: any) {
             console.error("Login Error:", err);
             setError(err.message || "Failed to sign in. Please check your connection.");
@@ -58,7 +83,7 @@ export default function AdminLogin() {
                         Portal Access
                     </h2>
                     <p className="font-sans text-xs uppercase tracking-[0.2em] text-secondary font-bold">
-                        Administrative Login
+                        Secure Portal Access
                     </p>
                 </div>
 

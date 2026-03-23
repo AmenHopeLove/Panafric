@@ -42,15 +42,16 @@ export async function middleware(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
 
     const isLoginPage = request.nextUrl.pathname === '/login'
-    const isAdminPage = request.nextUrl.pathname.startsWith('/admin')
+    const isProtectedPage = request.nextUrl.pathname.startsWith('/admin') || 
+                            request.nextUrl.pathname.startsWith('/client') || 
+                            request.nextUrl.pathname.startsWith('/member')
 
-    // 1. If user is logged in and on /login, move to /admin
-    if (isLoginPage && user) {
-        return NextResponse.redirect(new URL('/admin', request.url))
-    }
+    // 1. If user is logged in and on /login, we let the client side redirect them 
+    //    based on their specific role (Admin, Client, Member) to the correct dashboard.
+    //    We don't redirect here because middleware doesn't know their role.
 
-    // 2. If user is NOT logged in and on /admin, move to /login
-    if (isAdminPage && !user) {
+    // 2. If user is NOT logged in and on a protected route, move to /login
+    if (isProtectedPage && !user) {
         return NextResponse.redirect(new URL('/login', request.url))
     }
 
@@ -58,5 +59,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/login'],
+    matcher: ['/admin/:path*', '/client/:path*', '/member/:path*', '/login'],
 }
