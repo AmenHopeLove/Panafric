@@ -26,7 +26,9 @@ export default function JoinNetworkPage() {
         location: "",
         practice_areas: [] as string[],
         experience_years: "",
-        message: ""
+        message: "",
+        password: "",
+        confirmPassword: ""
     });
 
     const [currentPracticeArea, setCurrentPracticeArea] = useState("");
@@ -52,11 +54,34 @@ export default function JoinNetworkPage() {
         e.preventDefault();
         setStatus("submitting");
 
+        if (formData.password !== formData.confirmPassword) {
+            alert("Passwords do not match.");
+            setStatus("idle");
+            return;
+        }
+
         try {
-            const { error } = await supabase
+            // 1. Create Supabase Auth User (Pending)
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email: formData.email,
+                password: formData.password,
+                options: {
+                    data: {
+                        full_name: formData.full_name,
+                        role: 'client' // New members start as 'client' (Pending status)
+                    }
+                }
+            });
+
+            if (authError) throw authError;
+            if (!authData.user) throw new Error("Failed to initialize account security.");
+
+            // 2. Insert Application Record
+            const { error: appError } = await supabase
                 .from('network_applications')
                 .insert([
                     {
+                        user_id: authData.user.id,
                         full_name: formData.full_name,
                         email: formData.email,
                         phone: formData.phone,
@@ -69,7 +94,7 @@ export default function JoinNetworkPage() {
                     }
                 ]);
 
-            if (error) throw error;
+            if (appError) throw appError;
             setStatus("success");
             // Reset form
             setFormData({
@@ -80,7 +105,9 @@ export default function JoinNetworkPage() {
                 location: "",
                 practice_areas: [],
                 experience_years: "",
-                message: ""
+                message: "",
+                password: "",
+                confirmPassword: ""
             });
         } catch (err: any) {
             console.error("Application error:", err);
@@ -310,6 +337,29 @@ export default function JoinNetworkPage() {
                                         >
                                             Add
                                         </button>
+                                    </div>
+                                </div>
+
+                                <div className="grid md:grid-cols-2 gap-8">
+                                    <div className="space-y-2">
+                                        <input
+                                            required
+                                            type="password"
+                                            placeholder="Set Password *"
+                                            value={formData.password}
+                                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                            className="w-full bg-transparent border-b border-black/20 focus:border-black py-4 font-sans text-lg placeholder:text-muted focus:outline-none transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <input
+                                            required
+                                            type="password"
+                                            placeholder="Confirm Password *"
+                                            value={formData.confirmPassword}
+                                            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                            className="w-full bg-transparent border-b border-black/20 focus:border-black py-4 font-sans text-lg placeholder:text-muted focus:outline-none transition-all"
+                                        />
                                     </div>
                                 </div>
 
