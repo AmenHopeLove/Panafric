@@ -12,7 +12,10 @@ import {
   Globe,
   MessageSquare,
   Users,
-  Clock
+  Clock,
+  Video,
+  Copy,
+  Check
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -20,6 +23,14 @@ export default function MemberDashboard() {
   const { t } = useLanguage();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  const copyMeetingLink = () => {
+    const link = `${window.location.origin}/meeting/legal-consultation-${profile?.id?.slice(0, 8)}`;
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   useEffect(() => {
     async function fetchProfile() {
