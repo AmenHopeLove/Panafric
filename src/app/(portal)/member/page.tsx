@@ -99,7 +99,31 @@ export default function MemberDashboard() {
                 </div>
               </div>
 
-              <button className="w-full luxury-glass border border-secondary/20 py-4 rounded-2xl font-sans font-black uppercase tracking-widest text-[10px] flex items-center justify-center space-x-2 hover:bg-primary hover:text-white transition-all">
+              <div className="pt-6 border-t border-border/30 space-y-6">
+                 <div className="space-y-1">
+                    <p className="font-sans text-[10px] uppercase tracking-widest font-black text-secondary">Next Meeting</p>
+                    <p className="font-serif text-xl font-black text-black leading-tight italic">Thursday, 10:00 AM</p>
+                 </div>
+
+                 <div className="space-y-3">
+                    <button 
+                      onClick={() => window.location.href = `/meeting/legal-consultation-${profile?.id?.slice(0, 8)}`}
+                      className="w-full brand-gradient py-4 rounded-xl font-sans font-black uppercase tracking-widest text-[9px] text-white flex items-center justify-center space-x-2 shadow-brand"
+                    >
+                      <Video size={14} />
+                      <span>Join Room</span>
+                    </button>
+                    <button 
+                      onClick={copyMeetingLink}
+                      className="w-full bg-accent py-4 rounded-xl font-sans font-black uppercase tracking-widest text-[9px] text-primary flex items-center justify-center space-x-2 border border-primary/10"
+                    >
+                      {copied ? <Check size={14} className="text-secondary" /> : <Copy size={14} />}
+                      <span>{copied ? "Copied" : "Copy Invite Link"}</span>
+                    </button>
+                 </div>
+              </div>
+
+              <button className="w-full luxury-glass border border-secondary/20 py-4 mt-6 rounded-2xl font-sans font-black uppercase tracking-widest text-[10px] flex items-center justify-center space-x-2 hover:bg-primary hover:text-white transition-all">
                 <Settings size={14} />
                 <span>Edit Profile</span>
               </button>
