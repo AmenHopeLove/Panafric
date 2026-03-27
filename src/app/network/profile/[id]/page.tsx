@@ -7,44 +7,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const HARDCODED_MEMBERS = [
-    {
-        id: "1",
-        name: "Dr. Biruk Haile",
-        firm: "Pan Afric Law Firm & Network",
-        location: "Addis Ababa, Ethiopia",
-        expertise: "Corporate & Investment Law",
-        image: "https://images.unsplash.com/photo-1507679799987-c7377f323b51?auto=format&fit=crop&q=80&w=2000",
-        bio: "Dr. Biruk Haile is a distinguished legal professional with over 20 years of experience in corporate and investment law across Africa. He specializes in cross-border acquisitions and regulatory compliance."
-    },
-    {
-        id: "2",
-        name: "Sarah Oluchi",
-        firm: "Continental Legal Hub",
-        location: "Lagos, Nigeria",
-        expertise: "International Trade & Compliance",
-        image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=2000",
-        bio: "Sarah Oluchi is a leading expert in international trade law and compliance. She has advised numerous multinational corporations on navigating the complexities of African trade protocols."
-    },
-    {
-        id: "3",
-        name: "Kofi Mensah",
-        firm: "Heritage Solicitors",
-        location: "Accra, Ghana",
-        expertise: "Real Estate & Intellectual Property",
-        image: "https://images.unsplash.com/photo-1589156280159-27698a70f29e?auto=format&fit=crop&q=80&w=2000",
-        bio: "Kofi Mensah specializes in real estate and intellectual property law. He has a proven track record of protecting creative assets and securing property rights in West Africa."
-    },
-    {
-        id: "4",
-        name: "Amanuel Tesfaye",
-        firm: "Addis Corporate Advisory",
-        location: "Addis Ababa, Ethiopia",
-        expertise: "Litigation & Dispute Resolution",
-        image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=2000",
-        bio: "Amanuel Tesfaye is a formidable litigator with extensive experience in dispute resolution and civil litigation. He is known for his strategic approach and dedication to justice."
-    }
-];
+const HARDCODED_MEMBERS: any[] = [];
 
 export default function ProfilePage() {
     const { id } = useParams();
