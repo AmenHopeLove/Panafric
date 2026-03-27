@@ -71,7 +71,7 @@ export default function Footer() {
                 </div>
 
                 <div className="border-t border-white/5 pt-12 flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0 text-[10px] font-black uppercase tracking-[0.3em] text-muted/40">
-                    <p>© {new Date().getFullYear()} Pan Afric Law Firm. Modern Legal Heritage.</p>
+                    <p>© {new Date().getFullYear()} Pan Afric Law Firm. Amen Kingdom</p>
                     <div className="flex space-x-12">
                         <Link href="/privacy" className="hover:text-secondary transition-colors">Privacy</Link>
                         <Link href="/terms" className="hover:text-secondary transition-colors">Terms</Link>
