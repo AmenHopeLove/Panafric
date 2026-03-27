@@ -353,13 +353,60 @@ export default function CareersPage() {
                                                 {event.description}
                                             </p>
                                             {event.highlights && Array.isArray(event.highlights) && event.highlights.length > 0 && (
-                                                <ul className="space-y-3 pt-4">
-                                                    {event.highlights.map((item: string, hIdx: number) => (
-                                                        <li key={hIdx} className="flex items-center text-xs text-gray-500 font-sans uppercase tracking-widest group-hover:text-gray-300">
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-secondary mr-3" />
-                                                            {item}
-                                                        </li>
-                                                    ))}
+                                                <ul className="space-y-4 pt-4">
+                                                    {event.highlights.map((item: any, hIdx: number) => {
+                                                        let parsedItem = null;
+                                                        try {
+                                                            if (typeof item === 'string' && item.startsWith('{')) {
+                                                                parsedItem = JSON.parse(item);
+                                                            } else if (typeof item === 'object' && item !== null) {
+                                                                parsedItem = item;
+                                                            }
+                                                        } catch (e) {
+                                                            // Ignore if not valid JSON
+                                                        }
+
+                                                        if (parsedItem) {
+                                                            const speaker = parsedItem.SPEAKER || parsedItem.speaker;
+                                                            const topic = parsedItem.TOPIC || parsedItem.topic;
+                                                            const time = parsedItem.TIME || parsedItem.time;
+
+                                                            if (speaker && topic && time) {
+                                                                return (
+                                                                    <li key={hIdx} className="bg-black/20 border border-white/10 rounded-xl p-6 hover:bg-white/5 transition-all duration-500 group/speaker">
+                                                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                                                            <div className="space-y-2">
+                                                                                <h4 className="font-serif text-xl italic text-white group-hover/speaker:text-brand transition-colors">{String(speaker)}</h4>
+                                                                                <p className="font-sans text-sm text-gray-400 font-light">{String(topic)}</p>
+                                                                            </div>
+                                                                            <div className="inline-flex items-center space-x-2 bg-white/5 px-4 py-2 rounded-full border border-white/10 shrink-0">
+                                                                                <Clock size={14} className="text-secondary" />
+                                                                                <span className="text-xs font-black uppercase tracking-widest text-secondary">{String(time)}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </li>
+                                                                );
+                                                            }
+
+                                                            return (
+                                                                <li key={hIdx} className="flex flex-col space-y-2 bg-black/20 border border-white/10 rounded-xl p-6">
+                                                                    {Object.entries(parsedItem).map(([key, value]) => (
+                                                                        <div key={key} className="flex flex-wrap items-baseline gap-2">
+                                                                            <span className="text-xs font-black uppercase tracking-widest text-secondary/80">{key}</span>
+                                                                            <span className="text-sm font-sans text-gray-300">{String(value)}</span>
+                                                                        </div>
+                                                                    ))}
+                                                                </li>
+                                                            );
+                                                        }
+
+                                                        return (
+                                                            <li key={hIdx} className="flex items-center text-xs text-gray-500 font-sans uppercase tracking-widest group-hover:text-gray-300">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-secondary mr-3 shrink-0" />
+                                                                <span>{String(item)}</span>
+                                                            </li>
+                                                        );
+                                                    })}
                                                 </ul>
                                             )}
                                             {event.event_type === 'roundtable' && (
