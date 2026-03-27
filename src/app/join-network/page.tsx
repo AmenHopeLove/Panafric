@@ -10,9 +10,10 @@ import {
     ShieldCheck,
     MapPin,
     Clock,
-    Handshake
+    Handshake,
+    User
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { supabase } from "@/lib/supabase-client";
 
 export default function JoinNetworkPage() {
@@ -31,6 +32,10 @@ export default function JoinNetworkPage() {
         confirmPassword: ""
     });
 
+    const [profile_image_url, setProfileImageUrl] = useState("");
+    const [uploading, setUploading] = useState(false);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [currentPracticeArea, setCurrentPracticeArea] = useState("");
 
     const addPracticeArea = () => {
@@ -48,6 +53,37 @@ export default function JoinNetworkPage() {
             ...formData,
             practice_areas: formData.practice_areas.filter(a => a !== area)
         });
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setImageFile(file);
+        setUploading(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `profile-pics/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('network-profiles')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('network-profiles')
+                .getPublicUrl(filePath);
+
+            setProfileImageUrl(publicUrl);
+        } catch (err: any) {
+            console.error("Upload error:", err);
+            alert("Failed to upload image.");
+            setImageFile(null);
+        } finally {
+            setUploading(false);
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -68,7 +104,7 @@ export default function JoinNetworkPage() {
                 options: {
                     data: {
                         full_name: formData.full_name,
-                        role: 'client' // New members start as 'client' (Pending status)
+                        role: 'client' // New members start as 'client' until approved as 'member'
                     }
                 }
             });
@@ -76,11 +112,13 @@ export default function JoinNetworkPage() {
             if (authError) throw authError;
             if (!authData.user) throw new Error("Failed to initialize account security.");
 
-            // 2. Insert Application Record
-            const { error: appError } = await supabase
-                .from('network_applications')
-                .insert([
-                    {
+            // 2. Dispatch Application via API
+            const response = await fetch('/api/applications', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'network',
+                    payload: {
                         user_id: authData.user.id,
                         full_name: formData.full_name,
                         email: formData.email,
@@ -90,11 +128,16 @@ export default function JoinNetworkPage() {
                         practice_areas: formData.practice_areas,
                         experience_years: parseInt(formData.experience_years) || 0,
                         message: formData.message,
+                        profile_image_url: profile_image_url,
                         status: 'pending'
                     }
-                ]);
+                })
+            });
 
-            if (appError) throw appError;
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to submit application');
+            }
             setStatus("success");
             // Reset form
             setFormData({
@@ -109,6 +152,8 @@ export default function JoinNetworkPage() {
                 password: "",
                 confirmPassword: ""
             });
+            setProfileImageUrl("");
+            setImageFile(null);
         } catch (err: any) {
             console.error("Application error:", err);
             setStatus("idle");
@@ -134,49 +179,6 @@ export default function JoinNetworkPage() {
                     <h1 className="font-serif text-5xl md:text-8xl font-black text-white leading-tight max-w-5xl mx-auto">
                         Join Our Pan-African <span className="text-secondary">Network</span>
                     </h1>
-                </div>
-            </section>
-
-            {/* Our Members Highlight */}
-            <section className="py-24 bg-[#fcfcfc] border-b border-border">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16 space-y-4">
-                        <h2 className="font-serif text-4xl font-black italic">Founding Members & Experts</h2>
-                        <p className="text-muted font-sans font-light max-w-2xl mx-auto">
-                            The PALF Network is comprised of top-tier legal minds dedicated to the development of African jurisprudence.
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                        {[
-                            { name: "Dr. Amara Okoro", role: "International Trade Expert", loc: "Lagos, Nigeria", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400" },
-                            { name: "Adv. Kwesi Mensah", role: "Corporate Litigator", loc: "Accra, Ghana", img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400" },
-                            { name: "Sarah Tesfaye", role: "Regulatory Consultant", loc: "Addis Ababa, Ethiopia", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400" }
-                        ].map((member, i) => (
-                            <div key={i} className="group relative overflow-hidden bg-white border border-border rounded-sm p-8 hover:border-secondary transition-all shadow-sm hover:shadow-xl">
-                                <div className="h-48 w-48 mx-auto mb-8 relative">
-                                    <div className="absolute inset-0 border-2 border-secondary/20 translate-x-3 translate-y-3 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform"></div>
-                                    <img src={member.img} alt={member.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
-                                </div>
-                                <div className="text-center space-y-2">
-                                    <h4 className="font-serif text-xl font-bold">{member.name}</h4>
-                                    <p className="text-secondary font-sans text-[10px] font-black uppercase tracking-widest">{member.role}</p>
-                                    <div className="pt-4 flex items-center justify-center text-muted text-xs">
-                                        <MapPin size={12} className="mr-1" /> {member.loc}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="mt-20 text-center">
-                        <div className="inline-flex items-center space-x-4 border-t border-border pt-10">
-                            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <p className="font-sans text-xs font-bold uppercase tracking-widest text-muted">
-                                Currently welcoming applications for Q3 2026
-                            </p>
-                        </div>
-                    </div>
                 </div>
             </section>
 
@@ -373,22 +375,63 @@ export default function JoinNetworkPage() {
                                     ></textarea>
                                 </div>
 
+                                {/* Profile Image Upload */}
+                                <div className="space-y-4 pt-4">
+                                     <p className="font-sans font-bold text-xs uppercase tracking-widest text-muted">Professional Photo</p>
+                                     <div className="flex items-center space-x-8">
+                                         <div className="h-24 w-24 rounded-full bg-gray-50 border border-dashed border-border flex items-center justify-center overflow-hidden relative group/img">
+                                             {imageFile || profile_image_url ? (
+                                                 <img
+                                                     src={imageFile ? URL.createObjectURL(imageFile) : profile_image_url}
+                                                     className="h-full w-full object-cover"
+                                                     alt="Preview"
+                                                 />
+                                             ) : (
+                                                 <User className="text-muted" size={32} />
+                                             )}
+                                             {uploading && (
+                                                 <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+                                                     <div className="animate-spin rounded-full h-5 w-5 border-2 border-secondary border-t-transparent"></div>
+                                                 </div>
+                                             )}
+                                         </div>
+                                         <div className="space-y-2 flex-grow">
+                                             <input
+                                                 type="file"
+                                                 accept="image/*"
+                                                 className="hidden"
+                                                 ref={fileInputRef}
+                                                 onChange={handleImageUpload}
+                                             />
+                                             <button
+                                                 type="button"
+                                                 onClick={() => fileInputRef.current?.click()}
+                                                 className="px-6 py-2 border border-black font-sans text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300 transform hover:scale-105"
+                                             >
+                                                 {profile_image_url ? "Change Photo" : "Upload Photo"}
+                                             </button>
+                                             <p className="text-[10px] text-muted font-sans font-light">Recommended: 400x400px Square Image. (Max 2MB)</p>
+                                         </div>
+                                     </div>
+                                 </div>
+
                                 <div className="flex flex-col space-y-8 pt-8">
                                     <button
-                                        disabled={status !== "idle"}
-                                        className="group flex items-center space-x-6 w-full md:w-fit"
-                                    >
-                                        <div className={`h-16 w-16 rounded-full border border-black flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-500 ${status === "success" ? "bg-green-600 border-green-600 text-white" : ""}`}>
-                                            {status === "idle" && <ArrowRight className="group-hover:translate-x-1 transition-transform" />}
-                                            {status === "submitting" && <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent"></div>}
-                                            {status === "success" && <ShieldCheck size={24} />}
-                                        </div>
-                                        <span className="font-sans font-bold text-2xl uppercase tracking-widest text-black">
-                                            {status === "idle" && "Submit Application"}
-                                            {status === "submitting" && "Submitting..."}
-                                            {status === "success" && "Application Sent"}
-                                        </span>
-                                    </button>
+                                         disabled={status !== "idle" || uploading}
+                                         className={`group flex items-center space-x-6 w-full md:w-fit ${uploading ? "opacity-50 cursor-not-allowed" : ""}`}
+                                     >
+                                         <div className={`h-16 w-16 rounded-full border border-black flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-500 ${status === "success" ? "bg-green-600 border-green-600 text-white" : ""}`}>
+                                             {(status === "idle" && !uploading) && <ArrowRight className="group-hover:translate-x-1 transition-transform" />}
+                                             {(status === "submitting" || uploading) && <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent"></div>}
+                                             {status === "success" && <ShieldCheck size={24} />}
+                                         </div>
+                                         <span className="font-sans font-bold text-2xl uppercase tracking-widest text-black">
+                                             {(status === "idle" && !uploading) && "Submit Application"}
+                                             {status === "submitting" && "Submitting..."}
+                                             {uploading && "Uploading Image..."}
+                                             {status === "success" && "Application Sent"}
+                                         </span>
+                                     </button>
 
                                     {status === "success" && (
                                         <p className="text-emerald-700 font-sans text-sm italic py-4 border-t border-emerald-100 flex items-center">

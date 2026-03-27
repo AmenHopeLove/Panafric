@@ -1,12 +1,12 @@
 "use client";
 
-import { Search, MapPin, Briefcase, User, Filter, ArrowRight, ShieldCheck, CheckCircle, Globe, X } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { Search, MapPin, Briefcase, Filter, ArrowRight, Globe } from "lucide-react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase-client";
 import { useLanguage } from "@/context/LanguageContext";
 import Link from "next/link";
 
-const MEMBERS: any[] = [];const COUNTRIES = ["All Countries", "Ethiopia", "Nigeria", "Ghana", "Kenya", "South Africa"];
+const COUNTRIES = ["All Countries", "Ethiopia", "Nigeria", "Ghana", "Kenya", "South Africa"];
 const EXPERTISE = ["All Expertise", "Corporate", "Trade", "Litigation", "Real Estate", "IP"];
 
 export default function NetworkPage() {
@@ -16,26 +16,8 @@ export default function NetworkPage() {
     const [selectedExpertise, setSelectedExpertise] = useState("All Expertise");
     const [isCountryOpen, setIsCountryOpen] = useState(false);
     const [isExpertiseOpen, setIsExpertiseOpen] = useState(false);
-    const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
-    const [formData, setFormData] = useState({
-        full_name: "",
-        email: "",
-        phone: "",
-        firm_name: "",
-        location: "",
-        practice_areas: [] as string[],
-        experience_years: "",
-        message: "",
-        profile_image_url: ""
-    });
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [uploading, setUploading] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const [currentPracticeArea, setCurrentPracticeArea] = useState("");
     const [dbMembers, setDbMembers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const formRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         fetchApprovedMembers();
@@ -54,7 +36,7 @@ export default function NetworkPage() {
 
             // Map DB structure to UI structure
             const formattedMembers = (data || []).map(m => ({
-                id: `db-${m.id}`,
+                id: m.id,
                 name: m.full_name,
                 firm: m.firm_name || "Legal Professional",
                 location: m.location,
@@ -70,73 +52,7 @@ export default function NetworkPage() {
         }
     };
 
-    const scrollToForm = () => {
-        formRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-
-    const addPracticeArea = () => {
-        if (currentPracticeArea.trim() && !formData.practice_areas.includes(currentPracticeArea)) {
-            setFormData({
-                ...formData,
-                practice_areas: [...formData.practice_areas, currentPracticeArea.trim()]
-            });
-            setCurrentPracticeArea("");
-        }
-    };
-
-    const removePracticeArea = (area: string) => {
-        setFormData({
-            ...formData,
-            practice_areas: formData.practice_areas.filter(a => a !== area)
-        });
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setStatus("submitting");
-
-        try {
-            const { error } = await supabase
-                .from('network_applications')
-                .insert([
-                    {
-                        full_name: formData.full_name,
-                        email: formData.email,
-                        phone: formData.phone,
-                        firm_name: formData.firm_name,
-                        location: formData.location,
-                        practice_areas: formData.practice_areas,
-                        experience_years: parseInt(formData.experience_years) || 0,
-                        message: formData.message,
-                        profile_image_url: formData.profile_image_url,
-                        status: 'pending'
-                    }
-                ]);
-
-            if (error) throw error;
-            setStatus("success");
-            setFormData({
-                full_name: "",
-                email: "",
-                phone: "",
-                firm_name: "",
-                location: "",
-                practice_areas: [],
-                experience_years: "",
-                message: "",
-                profile_image_url: ""
-            });
-            setImageFile(null);
-        } catch (err: any) {
-            console.error("Application error:", err);
-            setStatus("idle");
-            alert(`Failed to submit application: ${err.message || 'Unknown error'}`);
-        }
-    };
-
-    const allMembers = dbMembers;
-
-    const filteredMembers = allMembers.filter(member => {
+    const filteredMembers = dbMembers.filter(member => {
         const matchesSearch = member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             member.firm.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesCountry = selectedCountry === "All Countries" || member.location.includes(selectedCountry);
@@ -162,12 +78,12 @@ export default function NetworkPage() {
                             </h1>
                         </div>
                         <div className="flex flex-wrap gap-6 mb-2">
-                            <button
-                                onClick={() => setIsModalOpen(true)}
-                                className="brand-gradient text-white px-12 py-6 rounded-full font-sans font-black uppercase tracking-[0.2em] text-[10px] hover:scale-105 active:scale-95 transition-all shadow-brand"
+                            <Link
+                                href="/join-network"
+                                className="brand-gradient text-white px-12 py-6 rounded-full font-sans font-black uppercase tracking-[0.2em] text-[10px] hover:scale-105 active:scale-95 transition-all shadow-brand flex items-center justify-center text-center"
                             >
                                 Apply for Membership
-                            </button>
+                            </Link>
                             <Link
                                 href="/network/benefits"
                                 className="luxury-glass border border-white/20 text-white px-12 py-6 rounded-full font-sans font-black uppercase tracking-[0.2em] text-[10px] hover:bg-white hover:text-black transition-all text-center"
@@ -180,7 +96,7 @@ export default function NetworkPage() {
             </section>
 
             {/* Search & Filter Bar - Floating Glass */}
-            <section className="sticky top-0 z-30 bg-white/40 backdrop-blur-xl border-b border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
+            <section className="sticky top-16 z-30 bg-white/40 backdrop-blur-xl border-b border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                     <div className="grid lg:grid-cols-4 gap-8">
                         <div className="lg:col-span-2 relative group">
@@ -345,12 +261,12 @@ export default function NetworkPage() {
                             </p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-8 min-w-fit">
-                            <button
-                                onClick={() => setIsModalOpen(true)}
-                                className="brand-gradient text-white px-16 py-6 rounded-full font-sans font-black uppercase tracking-[0.2em] text-[10px] hover:scale-105 transition-all shadow-brand"
+                            <Link
+                                href="/join-network"
+                                className="brand-gradient text-white px-16 py-6 rounded-full font-sans font-black uppercase tracking-[0.2em] text-[10px] hover:scale-105 transition-all shadow-brand flex items-center justify-center text-center"
                             >
                                 Apply for Membership
-                            </button>
+                            </Link>
                             <Link
                                 href="/network/benefits"
                                 className="luxury-glass border border-white/20 text-white px-16 py-6 rounded-full font-sans font-black uppercase tracking-[0.2em] text-[10px] hover:bg-white hover:text-black transition-all text-center"
@@ -361,245 +277,6 @@ export default function NetworkPage() {
                     </div>
                 </div>
             </section>
-
-            {/* Application Form Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-8">
-                    <div
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
-                        onClick={() => setIsModalOpen(false)}
-                    ></div>
-
-                    <div className="relative w-full max-w-4xl bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 flex flex-col max-h-[90vh]">
-                        {/* Modal Header */}
-                        <div className="flex items-center justify-between p-8 border-b border-border bg-white sticky top-0 z-10">
-                            <div>
-                                <h3 className="font-serif text-3xl font-black italic">Network Application</h3>
-                                <p className="text-muted font-sans text-xs uppercase tracking-widest mt-2">Executive Review Required</p>
-                            </div>
-                            <button
-                                onClick={() => setIsModalOpen(false)}
-                                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-
-                        {/* Modal Body */}
-                        <div className="p-8 lg:p-12 overflow-y-auto">
-                            <div className="flex items-center space-x-4 bg-emerald-50 px-4 py-3 rounded-sm mb-12 w-fit">
-                                <ShieldCheck className="text-emerald-600" size={20} />
-                                <span className="text-emerald-700 font-sans text-[10px] font-black uppercase tracking-widest leading-none">Security Verified</span>
-                            </div>
-
-                            <form onSubmit={(e) => {
-                                handleSubmit(e);
-                                // We don't close here, we want to show the success message in the modal
-                            }} className="space-y-8 pb-12">
-                                <div className="grid md:grid-cols-2 gap-8">
-                                    <div className="space-y-2">
-                                        <input
-                                            required
-                                            type="text"
-                                            placeholder="Full Name *"
-                                            value={formData.full_name}
-                                            onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                                            className="w-full bg-transparent border-b border-black/20 focus:border-black py-4 font-sans text-lg placeholder:text-muted focus:outline-none transition-all"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <input
-                                            required
-                                            type="email"
-                                            placeholder="Email Address *"
-                                            value={formData.email}
-                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                            className="w-full bg-transparent border-b border-black/20 focus:border-black py-4 font-sans text-lg placeholder:text-muted focus:outline-none transition-all"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid md:grid-cols-2 gap-8">
-                                    <div className="space-y-2">
-                                        <input
-                                            type="tel"
-                                            placeholder="Phone Number"
-                                            value={formData.phone}
-                                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                            className="w-full bg-transparent border-b border-black/20 focus:border-black py-4 font-sans text-lg placeholder:text-muted focus:outline-none transition-all"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <input
-                                            type="text"
-                                            placeholder="Firm Name (optional)"
-                                            value={formData.firm_name}
-                                            onChange={(e) => setFormData({ ...formData, firm_name: e.target.value })}
-                                            className="w-full bg-transparent border-b border-black/20 focus:border-black py-4 font-sans text-lg placeholder:text-muted focus:outline-none transition-all"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid md:grid-cols-2 gap-8">
-                                    <div className="space-y-2">
-                                        <input
-                                            required
-                                            type="text"
-                                            placeholder="Location (City, Country) *"
-                                            value={formData.location}
-                                            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                            className="w-full bg-transparent border-b border-black/20 focus:border-black py-4 font-sans text-lg placeholder:text-muted focus:outline-none transition-all"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <input
-                                            required
-                                            type="number"
-                                            placeholder="Years of Experience *"
-                                            value={formData.experience_years}
-                                            onChange={(e) => setFormData({ ...formData, experience_years: e.target.value })}
-                                            className="w-full bg-transparent border-b border-black/20 focus:border-black py-4 font-sans text-lg placeholder:text-muted focus:outline-none transition-all"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Practice Areas */}
-                                <div className="space-y-4">
-                                    <p className="font-sans font-bold text-xs uppercase tracking-widest text-muted">Practice Areas</p>
-                                    <div className="flex flex-wrap gap-2">
-                                        {formData.practice_areas.map((area) => (
-                                            <span key={area} className="bg-secondary/10 text-secondary px-3 py-1 rounded-sm text-xs font-bold uppercase tracking-widest flex items-center">
-                                                {area}
-                                                <button type="button" onClick={() => removePracticeArea(area)} className="ml-2 hover:text-black transition-colors">×</button>
-                                            </span>
-                                        ))}
-                                    </div>
-                                    <div className="flex space-x-2">
-                                        <input
-                                            type="text"
-                                            placeholder="e.g. Corporate Law"
-                                            value={currentPracticeArea}
-                                            onChange={(e) => setCurrentPracticeArea(e.target.value)}
-                                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addPracticeArea())}
-                                            className="flex-grow bg-transparent border-b border-black/20 focus:border-black py-2 font-sans text-sm outline-none transition-all"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={addPracticeArea}
-                                            className="px-4 py-2 border border-black rounded-sm font-sans text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-sm"
-                                        >
-                                            Add
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <textarea
-                                        rows={3}
-                                        placeholder="Professional Bio / Vision Statement (Optional)"
-                                        value={formData.message}
-                                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                                        className="w-full bg-transparent border-b border-black/20 focus:border-black py-4 font-sans text-lg placeholder:text-muted focus:outline-none transition-all"
-                                    ></textarea>
-                                </div>
-
-                                {/* Profile Image Upload */}
-                                <div className="space-y-4 pt-4">
-                                    <p className="font-sans font-bold text-xs uppercase tracking-widest text-muted">Professional Photo</p>
-                                    <div className="flex items-center space-x-8">
-                                        <div className="h-24 w-24 rounded-full bg-gray-50 border border-dashed border-border flex items-center justify-center overflow-hidden relative group/img">
-                                            {imageFile || formData.profile_image_url ? (
-                                                <img
-                                                    src={imageFile ? URL.createObjectURL(imageFile) : formData.profile_image_url}
-                                                    className="h-full w-full object-cover"
-                                                    alt="Preview"
-                                                />
-                                            ) : (
-                                                <User className="text-muted" size={32} />
-                                            )}
-                                            {uploading && (
-                                                <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
-                                                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-secondary border-t-transparent"></div>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="space-y-2 flex-grow">
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                className="hidden"
-                                                ref={fileInputRef}
-                                                onChange={async (e) => {
-                                                    const file = e.target.files?.[0];
-                                                    if (file) {
-                                                        setImageFile(file);
-                                                        setUploading(true);
-                                                        try {
-                                                            const fileExt = file.name.split('.').pop();
-                                                            const fileName = `${Math.random()}.${fileExt}`;
-                                                            const filePath = `${fileName}`;
-
-                                                            const { error: uploadError } = await supabase.storage
-                                                                .from('network-profiles')
-                                                                .upload(filePath, file);
-
-                                                            if (uploadError) throw uploadError;
-
-                                                            const { data: { publicUrl } } = supabase.storage
-                                                                .from('network-profiles')
-                                                                .getPublicUrl(filePath);
-
-                                                            setFormData(prev => ({ ...prev, profile_image_url: publicUrl }));
-                                                        } catch (err: any) {
-                                                            alert("Upload failed: " + err.message);
-                                                            setImageFile(null);
-                                                        } finally {
-                                                            setUploading(false);
-                                                        }
-                                                    }
-                                                }}
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => fileInputRef.current?.click()}
-                                                className="px-6 py-2 border border-black font-sans text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all"
-                                            >
-                                                {formData.profile_image_url ? "Change Photo" : "Upload Photo"}
-                                            </button>
-                                            <p className="text-[10px] text-muted font-sans font-light">Recommended: 400x400px Square Image. (Max 2MB)</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-col space-y-8 pt-8">
-                                    <button
-                                        disabled={status !== "idle" || uploading}
-                                        className={`group flex items-center space-x-6 w-full md:w-fit ${uploading ? "opacity-50 cursor-not-allowed" : ""}`}
-                                    >
-                                        <div className={`h-16 w-16 rounded-full border border-black flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-500 ${status === "success" ? "bg-green-600 border-green-600 text-white" : ""}`}>
-                                            {(status === "idle" && !uploading) && <ArrowRight className="group-hover:translate-x-1 transition-transform" />}
-                                            {(status === "submitting" || uploading) && <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent"></div>}
-                                            {status === "success" && <ShieldCheck size={24} />}
-                                        </div>
-                                        <span className="font-sans font-bold text-2xl uppercase tracking-widest text-black">
-                                            {(status === "idle" && !uploading) && "Submit Application"}
-                                            {status === "submitting" && "Submitting..."}
-                                            {uploading && "Uploading Image..."}
-                                            {status === "success" && "Application Sent"}
-                                        </span>
-                                    </button>
-
-                                    {status === "success" && (
-                                        <p className="text-emerald-700 font-sans text-sm italic py-4 border-t border-emerald-100 flex items-center">
-                                            <CheckCircle className="mr-2" size={16} /> Thank you. Your application is under review by our executive committee.
-                                        </p>
-                                    )}
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

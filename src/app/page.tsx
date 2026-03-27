@@ -54,7 +54,7 @@ export default function Home() {
 
             <div className="flex flex-wrap justify-start gap-8 pt-6 animate-in fade-in slide-in-from-left-10 duration-1000 delay-300">
               <Link
-                href="/network"
+                href="/join-network"
                 className="brand-gradient text-white px-12 py-5 rounded-full font-sans font-black uppercase tracking-[0.2em] text-xs hover:scale-105 active:scale-95 transition-all flex items-center group shadow-brand"
               >
                 {t("joinNetwork")}

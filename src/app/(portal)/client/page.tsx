@@ -1,236 +1,133 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase-client';
-import { 
-  FileText, 
-  Clock, 
-  CheckCircle2, 
-  AlertCircle, 
-  Upload, 
-  Video, 
-  Download,
-  Shield,
-  Briefcase,
-  Copy,
-  Check
-} from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
-
-interface Case {
-  id: string;
-  created_at: string;
-  subject: string;
-  status: 'new' | 'reviewing' | 'accepted' | 'rejected' | 'closed';
-  case_type: string;
-  description: string;
-}
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase-client";
+import { FileText, Clock, AlertCircle, Plus, ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 export default function ClientDashboard() {
-  const { t } = useLanguage();
-  const [cases, setCases] = useState<Case[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
-  const [copied, setCopied] = useState(false);
+    const [consultations, setConsultations] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [userEmail, setUserEmail] = useState("");
 
-  const copyMeetingLink = () => {
-    const link = `${window.location.origin}/meeting/consultation-${user?.id?.slice(0, 8)}`;
-    navigator.clipboard.writeText(link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user?.email) {
+                setUserEmail(session.user.email);
+                
+                // Fetch cases/consultations linked to this email
+                const { data } = await supabase
+                    .from('consultations')
+                    .select('*')
+                    .eq('email', session.user.email)
+                    .order('created_at', { ascending: false });
+                    
+                setConsultations(data || []);
+            }
+            setLoading(false);
+        };
 
-  useEffect(() => {
-    async function fetchData() {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      
-      if (user) {
-        const { data, error } = await supabase
-          .from('cases')
-          .select('*')
-          .or(`client_id.eq.${user.id},email.eq.${user.email}`)
-          .order('created_at', { ascending: false });
+        fetchUserData();
+    }, []);
 
-        if (!error && data) {
-          setCases(data);
-        }
-      }
-      setLoading(false);
+    if (loading) {
+        return <div className="h-64 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-2 border-secondary border-t-transparent"></div></div>;
     }
-    fetchData();
-  }, []);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'new': return 'text-blue-500 bg-blue-50';
-      case 'reviewing': return 'text-amber-500 bg-amber-50';
-      case 'accepted': return 'text-green-500 bg-green-50';
-      case 'rejected': return 'text-red-500 bg-red-50';
-      case 'closed': return 'text-gray-500 bg-gray-50';
-      default: return 'text-gray-500 bg-gray-50';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'new': return <Clock size={16} />;
-      case 'reviewing': return <AlertCircle size={16} />;
-      case 'accepted': return <CheckCircle2 size={16} />;
-      case 'rejected': return <AlertCircle size={16} />;
-      default: return <FileText size={16} />;
-    }
-  };
-
-  return (
-    <div className="space-y-12 animate-in fade-in duration-700">
-      {/* Welcome Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-        <div className="space-y-4">
-          <div className="w-16 h-1 brand-gradient rounded-full" />
-          <h2 className="font-sans text-secondary font-black uppercase tracking-[0.4em] text-[10px]">
-            Client Secure Portal
-          </h2>
-          <h1 className="font-serif text-5xl md:text-6xl font-black text-black leading-none tracking-tighter">
-            Welcome back, <br />
-            <span className="text-secondary italic">{user?.user_metadata?.full_name || 'Valued Client'}</span>
-          </h1>
-        </div>
-        <div className="flex space-x-4">
-          <button className="luxury-glass border border-secondary/20 text-primary px-8 py-4 rounded-full font-sans font-black uppercase tracking-widest text-[10px] hover:bg-primary hover:text-white transition-all">
-            Update Profile
-          </button>
-          <button className="brand-gradient text-white px-8 py-4 rounded-full font-sans font-black uppercase tracking-widest text-[10px] shadow-brand hover:scale-105 transition-all">
-            Logout
-          </button>
-        </div>
-      </div>
-
-      <div className="grid lg:grid-cols-3 gap-12">
-        {/* Main Content: Case Tracking */}
-        <div className="lg:col-span-2 space-y-8">
-          <div className="flex items-center justify-between">
-            <h3 className="font-serif text-3xl font-black text-black tracking-tight">Active Legal Cases</h3>
-            <span className="bg-accent px-4 py-1 rounded-full font-sans text-[10px] font-black uppercase tracking-widest text-muted">
-              {cases.length} Total
-            </span>
-          </div>
-
-          {loading ? (
-            <div className="py-20 flex flex-col items-center justify-center space-y-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-2 border-secondary border-t-transparent"></div>
-              <p className="font-sans text-[10px] text-muted uppercase tracking-[0.3em]">Syncing Vault...</p>
-            </div>
-          ) : cases.length > 0 ? (
-            <div className="space-y-6">
-              {cases.map((c) => (
-                <div key={c.id} className="luxury-card bg-white rounded-3xl p-8 border border-border/40 hover:border-secondary/40 transition-all group">
-                  <div className="flex flex-col md:flex-row justify-between gap-6">
-                    <div className="space-y-4">
-                      <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(c.status)}`}>
-                        {getStatusIcon(c.status)}
-                        <span>{c.status}</span>
-                      </div>
-                      <h4 className="font-serif text-2xl font-black text-black group-hover:text-primary transition-colors">
-                        {c.subject}
-                      </h4>
-                      <p className="text-muted text-sm font-sans line-clamp-2 italic">
-                        {c.description}
-                      </p>
-                      <div className="flex items-center space-x-6 pt-4 text-[10px] font-black uppercase tracking-widest text-muted">
-                        <span className="flex items-center space-x-2">
-                          <Briefcase size={12} className="text-secondary" />
-                          <span>{c.case_type}</span>
-                        </span>
-                        <span className="flex items-center space-x-2">
-                          <Clock size={12} className="text-secondary" />
-                          <span>{new Date(c.created_at).toLocaleDateString()}</span>
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex flex-row md:flex-col justify-end gap-3">
-                      <button className="p-4 rounded-2xl bg-accent text-primary hover:bg-secondary hover:text-white transition-all shadow-sm group/btn">
-                        <FileText size={20} />
-                      </button>
-                      <button className="p-4 rounded-2xl bg-secondary text-white hover:scale-105 transition-all shadow-brand">
-                        <Video size={20} />
-                      </button>
-                    </div>
-                  </div>
+    return (
+        <div className="max-w-6xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-border pb-8">
+                <div className="space-y-4">
+                    <h1 className="font-serif text-5xl font-black italic">Client Dashboard</h1>
+                    <p className="font-sans text-muted text-lg tracking-wide font-light">
+                        Manage your active inquiries and case files securely.
+                    </p>
                 </div>
-              ))}
+                <Link href="/contact" className="bg-black text-white px-8 py-4 font-sans text-[10px] font-black uppercase tracking-widest shadow-xl flex items-center hover:bg-secondary transition-all">
+                    <Plus size={14} className="mr-2" /> New Consultation
+                </Link>
             </div>
-          ) : (
-            <div className="py-20 text-center space-y-6 bg-accent/20 rounded-[40px] border border-dashed border-border">
-              <Shield size={48} className="mx-auto text-secondary/30" />
-              <p className="font-serif text-2xl text-muted italic">No active cases found in your vault.</p>
-              <button className="text-secondary font-sans font-black uppercase tracking-widest text-xs border-b border-secondary pb-1">
-                Start a New Case
-              </button>
-            </div>
-          )}
-        </div>
 
-        {/* Sidebar: Secure Vault & Actions */}
-        <div className="space-y-8">
-          <div className="luxury-card brand-gradient p-10 rounded-[40px] text-white space-y-8 shadow-brand">
-            <div className="space-y-2">
-              <h3 className="font-serif text-3xl font-black">Secure Vault</h3>
-              <p className="font-sans text-[10px] uppercase tracking-[0.2em] opacity-60 font-bold">Encrypted Document Storage</p>
+            <div className="space-y-8">
+                <h2 className="font-sans text-xs font-black uppercase tracking-[0.2em] text-black">Active Inquiries & Cases</h2>
+                
+                {consultations.length === 0 ? (
+                    <div className="bg-white border border-dashed border-border p-20 text-center rounded-sm">
+                        <AlertCircle className="mx-auto text-secondary/50 mb-6" size={48} />
+                        <h3 className="font-serif text-2xl italic text-black mb-2">No Active Cases Found</h3>
+                        <p className="font-sans text-muted">You have no pending consultations or cases linked to {userEmail}.</p>
+                    </div>
+                ) : (
+                    <div className="grid gap-6">
+                        {consultations.map((item) => (
+                            <div key={item.id} className="bg-white border border-border p-8 hover:shadow-2xl transition-all group flex flex-col md:flex-row justify-between md:items-center gap-6 rounded-sm">
+                                <div className="flex items-start space-x-6">
+                                    <div className="bg-primary/5 p-4 rounded-xl text-primary mt-1 group-hover:bg-secondary/10 group-hover:text-secondary transition-colors">
+                                        <FileText size={24} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h3 className="font-serif text-2xl font-bold italic">{item.subject || 'General Inquiry'}</h3>
+                                        <p className="font-sans text-xs text-muted uppercase tracking-widest flex items-center">
+                                            <Clock size={12} className="mr-2" />
+                                            Submitted: {new Date(item.created_at).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-6 justify-between md:justify-end md:w-96">
+                                    <span className={`px-4 py-2 font-sans text-[10px] font-black uppercase tracking-widest rounded-sm whitespace-nowrap text-center ${
+                                        item.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                        item.status === 'payment_pending' ? 'bg-orange-100 text-orange-800' : 
+                                        item.status === 'paid' ? 'bg-emerald-100 text-emerald-800' : 
+                                        item.status === 'resolved' ? 'bg-emerald-100 text-emerald-800' : 
+                                        'bg-blue-100 text-blue-800'
+                                    }`}>
+                                        {item.status ? item.status.replace('_', ' ') : 'Under Review'}
+                                    </span>
+                                    
+                                    {(item.status === 'pending' || item.status === 'payment_pending') ? (
+                                        <button 
+                                            onClick={async () => {
+                                                try {
+                                                    const res = await fetch('/api/checkout', {
+                                                        method: 'POST',
+                                                        headers: {'Content-Type': 'application/json'},
+                                                        body: JSON.stringify({
+                                                            consultation_id: item.id,
+                                                            amount: 250, // Standard retainer mock
+                                                            email: userEmail,
+                                                            name: item.full_name
+                                                        })
+                                                    });
+                                                    const data = await res.json();
+                                                    if(data.payment_url) {
+                                                        window.location.href = data.payment_url;
+                                                    }
+                                                } catch(e) {
+                                                    alert("Payment gateway connection failed.");
+                                                }
+                                            }}
+                                            className="bg-black text-white px-6 py-3 font-sans text-[10px] font-black uppercase tracking-widest hover:bg-secondary transition-colors shadow-lg flex items-center justify-center whitespace-nowrap"
+                                        >
+                                            Pay Retainer ($250)
+                                        </button>
+                                    ) : (
+                                        <div className="w-10 flex justify-end">
+                                            <ChevronRight className="text-muted group-hover:text-secondary group-hover:translate-x-2 transition-all" size={20} />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
             
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-white/10 rounded-2xl">
-                <div className="flex items-center space-x-3">
-                  <FileText size={18} className="text-secondary" />
-                  <span className="text-xs font-bold uppercase tracking-wider">ID_Card.pdf</span>
-                </div>
-                <Download size={16} className="opacity-40" />
-              </div>
-              <div className="flex items-center justify-between p-4 bg-white/10 rounded-2xl">
-                <div className="flex items-center space-x-3">
-                  <FileText size={18} className="text-secondary" />
-                  <span className="text-xs font-bold uppercase tracking-wider">NDA_Signed.pdf</span>
-                </div>
-                <Download size={16} className="opacity-40" />
-              </div>
+            <div className="bg-primary/5 p-10 border border-border rounded-sm">
+                <h3 className="font-serif text-2xl font-bold italic mb-4">Secure Messaging</h3>
+                <p className="font-sans text-sm text-muted mb-6">Need to send sensitive documents to our legal team? Please use our encrypted intake form.</p>
+                <Link href="/contact/start-case" className="font-sans border-b border-black text-xs font-black uppercase tracking-widest pb-1 hover:text-secondary hover:border-secondary transition-all">Open Intake Form</Link>
             </div>
-
-            <button className="w-full bg-white text-primary py-5 rounded-2xl font-sans font-black uppercase tracking-widest text-[10px] flex items-center justify-center space-x-3 hover:bg-secondary hover:text-white transition-all">
-              <Upload size={16} />
-              <span>Upload Documents</span>
-            </button>
-          </div>
-
-          <div className="luxury-card bg-[#0a0a0a] p-10 rounded-[40px] text-white space-y-8">
-            <div className="space-y-2">
-              <h3 className="font-serif text-3xl font-black">Next Meeting</h3>
-              <p className="font-sans text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">Video Consultation</p>
-            </div>
-            
-            <div className="space-y-1">
-              <p className="text-4xl font-serif font-black">Thursday</p>
-              <p className="text-muted font-sans font-light italic">March 27, 2026 @ 10:00 AM</p>
-            </div>
-
-            <button 
-              onClick={copyMeetingLink}
-              className="w-full bg-white/10 text-white py-4 rounded-2xl font-sans font-black uppercase tracking-widest text-[10px] flex items-center justify-center space-x-3 hover:bg-white/20 transition-all border border-white/10"
-            >
-              {copied ? <Check size={16} className="text-secondary" /> : <Copy size={16} />}
-              <span>{copied ? "Copied Link" : "Invite Participant"}</span>
-            </button>
-
-            <button 
-              onClick={() => window.location.href = `/meeting/consultation-${user?.id?.slice(0, 8)}`}
-              className="w-full brand-gradient py-5 rounded-2xl font-sans font-black uppercase tracking-widest text-[10px] flex items-center justify-center space-x-3 shadow-brand hover:scale-105 transition-all"
-            >
-              <Video size={16} />
-              <span>Join Secure Room</span>
-            </button>
-          </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }

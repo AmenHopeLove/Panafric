@@ -69,14 +69,22 @@ export default function CareersPage() {
         setAppLoading(true);
 
         try {
-            const { error } = await supabase
-                .from('internship_applications')
-                .insert([{
-                    ...appFormData,
-                    internship_id: selectedInternship.id
-                }]);
+            const response = await fetch('/api/applications', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'internship',
+                    payload: {
+                        ...appFormData,
+                        internship_id: selectedInternship.id
+                    }
+                })
+            });
 
-            if (error) throw error;
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to submit application');
+            }
             setAppSuccess(true);
             setTimeout(() => {
                 setIsAppModalOpen(false);
@@ -112,17 +120,22 @@ export default function CareersPage() {
         e.preventDefault();
         setAppLoading(true);
         try {
-            // Log as a generic inquiry for now
-            const { error } = await supabase
-                .from('consultations')
-                .insert([{
+            // Log as a generic inquiry via the contact API
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
                     full_name: appFormData.full_name,
                     email: appFormData.email,
                     subject: `Training Access Request: ${selectedResource?.title}`,
                     message: `User is requesting access to training resource: ${selectedResource?.title}. LinkedIn: ${appFormData.linkedin_url}`
-                }]);
+                })
+            });
 
-            if (error) throw error;
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to submit request');
+            }
             setAppSuccess(true);
             setTimeout(() => {
                 setIsTrainingModalOpen(false);

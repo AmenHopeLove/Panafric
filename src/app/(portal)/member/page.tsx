@@ -1,215 +1,109 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase-client';
-import { 
-  User, 
-  MapPin, 
-  Briefcase, 
-  Settings, 
-  ArrowRight, 
-  CheckCircle2, 
-  Globe,
-  MessageSquare,
-  Users,
-  Clock,
-  Video,
-  Copy,
-  Check
-} from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase-client";
+import { ShieldAlert, CheckCircle, Lock, BookOpen, Users } from "lucide-react";
+import Link from "next/link";
 
 export default function MemberDashboard() {
-  const { t } = useLanguage();
-  const [profile, setProfile] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
+    const [application, setApplication] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
-  const copyMeetingLink = () => {
-    const link = `${window.location.origin}/meeting/legal-consultation-${profile?.id?.slice(0, 8)}`;
-    navigator.clipboard.writeText(link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+    useEffect(() => {
+        const fetchStatus = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user?.id) {
+                // Fetch latest network application for this user id
+                const { data } = await supabase
+                    .from('network_applications')
+                    .select('*')
+                    .eq('user_id', session.user.id)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .single();
+                    
+                setApplication(data);
+            }
+            setLoading(false);
+        };
 
-  useEffect(() => {
-    async function fetchProfile() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data, error } = await supabase
-          .from('network_applications')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
+        fetchStatus();
+    }, []);
 
-        if (data) setProfile(data);
-      }
-      setLoading(false);
+    if (loading) {
+        return <div className="h-64 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-2 border-secondary border-t-transparent"></div></div>;
     }
-    fetchProfile();
-  }, []);
 
-  return (
-    <div className="space-y-12 animate-in fade-in duration-700">
-      {/* Member Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-        <div className="space-y-4">
-          <div className="w-24 h-1 brand-gradient rounded-full" />
-          <h2 className="font-sans text-secondary font-black uppercase tracking-[0.4em] text-[10px]">
-            Network Member Portal
-          </h2>
-          <h1 className="font-serif text-5xl md:text-6xl font-black text-black leading-none tracking-tighter">
-            Legal <span className="text-secondary italic">Excellence</span> <br />
-            Dashboard
-          </h1>
-        </div>
-        <div className="flex space-x-4">
-          <button className="brand-gradient text-white px-8 py-4 rounded-full font-sans font-black uppercase tracking-widest text-[10px] shadow-brand hover:scale-105 transition-all">
-            Logout
-          </button>
-        </div>
-      </div>
-
-      <div className="grid lg:grid-cols-4 gap-12">
-        {/* Left Sidebar: Profile Summary */}
-        <div className="lg:col-span-1 space-y-8">
-          <div className="luxury-card bg-white rounded-[50px] overflow-hidden shadow-xl border border-border/40">
-            <div className="h-48 relative overflow-hidden">
-               <img 
-                src={profile?.profile_image_url || "https://images.unsplash.com/photo-1507679799987-c7377f323b51?auto=format&fit=crop&q=80&w=2000"} 
-                className="w-full h-full object-cover grayscale"
-                alt="Profile"
-              />
-              <div className="absolute inset-0 bg-primary/20"></div>
-            </div>
-            <div className="p-8 space-y-6">
-              <div className="space-y-1 text-center">
-                <h4 className="font-serif text-2xl font-black text-black">{profile?.full_name || 'Legal Professional'}</h4>
-                <p className="font-sans text-[10px] text-secondary font-black uppercase tracking-widest">{profile?.firm_name || 'Pan Afric Network'}</p>
-              </div>
-              
-              <div className="space-y-4 pt-4 border-t border-border/30">
-                <div className="flex items-center space-x-3 text-muted">
-                  <MapPin size={14} className="text-secondary" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest">{profile?.location || 'Addis Ababa, Ethiopia'}</span>
-                </div>
-                <div className="flex items-center space-x-3 text-muted">
-                  <CheckCircle2 size={14} className="text-green-600" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-green-700">Verified Member</span>
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-border/30 space-y-6">
-                 <div className="space-y-1">
-                    <p className="font-sans text-[10px] uppercase tracking-widest font-black text-secondary">Next Meeting</p>
-                    <p className="font-serif text-xl font-black text-black leading-tight italic">Thursday, 10:00 AM</p>
-                 </div>
-
-                 <div className="space-y-3">
-                    <button 
-                      onClick={() => window.location.href = `/meeting/legal-consultation-${profile?.id?.slice(0, 8)}`}
-                      className="w-full brand-gradient py-4 rounded-xl font-sans font-black uppercase tracking-widest text-[9px] text-white flex items-center justify-center space-x-2 shadow-brand"
-                    >
-                      <Video size={14} />
-                      <span>Join Room</span>
-                    </button>
-                    <button 
-                      onClick={copyMeetingLink}
-                      className="w-full bg-accent py-4 rounded-xl font-sans font-black uppercase tracking-widest text-[9px] text-primary flex items-center justify-center space-x-2 border border-primary/10"
-                    >
-                      {copied ? <Check size={14} className="text-secondary" /> : <Copy size={14} />}
-                      <span>{copied ? "Copied" : "Copy Invite Link"}</span>
-                    </button>
-                 </div>
-              </div>
-
-              <button className="w-full luxury-glass border border-secondary/20 py-4 mt-6 rounded-2xl font-sans font-black uppercase tracking-widest text-[10px] flex items-center justify-center space-x-2 hover:bg-primary hover:text-white transition-all">
-                <Settings size={14} />
-                <span>Edit Profile</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content: Stats & Referrals */}
-        <div className="lg:col-span-3 space-y-12">
-          {/* Quick Stats */}
-          <div className="grid md:grid-cols-3 gap-6">
-             <div className="luxury-card bg-primary p-8 rounded-[35px] text-white flex justify-between items-center group overflow-hidden relative">
-               <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-125 transition-transform duration-700">
-                  <MessageSquare size={120} />
-               </div>
-               <div className="space-y-1 relative z-10">
-                 <p className="text-4xl font-serif font-black">12</p>
-                 <p className="font-sans text-[10px] uppercase tracking-widest font-bold opacity-60">Messages</p>
-               </div>
-               <ArrowRight size={24} className="text-secondary opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0" />
-             </div>
-             <div className="luxury-card bg-[#f8f8f8] p-8 rounded-[35px] text-black flex justify-between items-center group border border-border/40 overflow-hidden relative">
-                <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-125 transition-transform duration-700">
-                  <Briefcase size={120} />
-               </div>
-               <div className="space-y-1 relative z-10">
-                 <p className="text-4xl font-serif font-black">04</p>
-                 <p className="font-sans text-[10px] uppercase tracking-widest font-bold text-muted">Active Referrals</p>
-               </div>
-               <ArrowRight size={24} className="text-secondary opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0" />
-             </div>
-             <div className="luxury-card brand-gradient p-8 rounded-[35px] text-white flex justify-between items-center group shadow-brand overflow-hidden relative">
-                <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-125 transition-transform duration-700">
-                  <Globe size={120} />
-               </div>
-               <div className="space-y-1 relative z-10">
-                 <p className="text-4xl font-serif font-black">28</p>
-                 <p className="font-sans text-[10px] uppercase tracking-widest font-bold opacity-60">Network Reach</p>
-               </div>
-               <ArrowRight size={24} className="text-white opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0" />
-             </div>
-          </div>
-
-          {/* Referral Board */}
-          <div className="space-y-8">
-            <div className="flex items-center justify-between">
-              <h3 className="font-serif text-3xl font-black text-black tracking-tight">Referral Opportunity Board</h3>
-              <div className="flex space-x-2">
-                <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-                <span className="font-sans text-[10px] font-black uppercase tracking-widest text-muted">Live Update</span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {[
-                { type: 'Corporate', loc: 'Lagos, Nigeria', client: 'Pharma Group', time: '2h ago' },
-                { type: 'Litigation', loc: 'Nairobi, Kenya', client: 'Tech Startup', time: '5h ago' }
-              ].map((ref, i) => (
-                <div key={i} className="luxury-card bg-white p-8 rounded-[30px] border border-border/30 hover:border-secondary/40 transition-all group flex items-center justify-between">
-                  <div className="flex items-center space-x-8">
-                    <div className="p-4 bg-accent rounded-2xl text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                      <Users size={24} />
+    if (!application || application.status === 'pending') {
+        return (
+            <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in py-20">
+                <div className="bg-white border-2 border-yellow-400/20 p-16 text-center space-y-8 rounded-sm shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-yellow-400"></div>
+                    <ShieldAlert className="mx-auto text-yellow-500" size={64} />
+                    <div className="space-y-4">
+                        <h1 className="font-serif text-5xl font-black italic">Application Under Review</h1>
+                        <p className="font-sans text-muted text-lg max-w-xl mx-auto leading-relaxed">
+                            Thank you for applying to the Pan-Afric Law Network. The executive committee is currently verifying your credentials. 
+                            You will receive an email once your Chartered Membership is approved.
+                        </p>
                     </div>
-                    <div>
-                      <h4 className="font-serif text-xl font-black text-black tracking-tight">{ref.type} Referral - {ref.client}</h4>
-                      <div className="flex items-center space-x-4 text-[10px] font-black uppercase tracking-widest text-muted mt-2">
-                        <span className="flex items-center space-x-2">
-                          <MapPin size={12} className="text-secondary" />
-                          <span>{ref.loc}</span>
-                        </span>
-                        <span className="flex items-center space-x-2">
-                          <Clock size={12} className="text-secondary" />
-                          <span>{ref.time}</span>
-                        </span>
-                      </div>
+                    <div className="inline-flex items-center space-x-3 bg-gray-50 px-6 py-3 rounded-full border border-border">
+                        <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
+                        <span className="font-sans text-[10px] font-black uppercase tracking-widest">Status: Pending Verification</span>
                     </div>
-                  </div>
-                  <button className="luxury-glass border border-secondary/20 px-6 py-3 rounded-full font-sans font-black uppercase tracking-widest text-[9px] hover:bg-primary hover:text-white transition-all">
-                    Express Interest
-                  </button>
                 </div>
-              ))}
             </div>
-          </div>
+        );
+    }
+
+    return (
+        <div className="max-w-6xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-border pb-8">
+                <div className="space-y-4">
+                    <div className="inline-flex items-center space-x-2 text-secondary bg-secondary/10 px-3 py-1 rounded-sm">
+                        <CheckCircle size={14} />
+                        <span className="font-sans text-[10px] font-black uppercase tracking-[0.2em]">Verified Member</span>
+                    </div>
+                    <h1 className="font-serif text-5xl font-black italic">Welcome, {application.full_name}</h1>
+                </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+                <div className="luxury-card bg-black text-white p-12 rounded-3xl space-y-8 group hover:-translate-y-2 transition-transform duration-500 shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/10 -translate-y-1/2 translate-x-1/2 rounded-full blur-3xl"></div>
+                    <Users className="text-secondary" size={40} />
+                    <div className="space-y-4 relative z-10">
+                        <h2 className="font-serif text-3xl font-bold italic">Private Directory</h2>
+                        <p className="text-white/60 font-sans font-light leading-relaxed">Access the encrypted contact information of other verified Chartered Members across the continent to build localized partnerships.</p>
+                    </div>
+                    <Link href="/network" className="inline-block mt-4 text-xs font-sans font-black uppercase tracking-widest border-b border-secondary pb-1 hover:text-secondary transition-colors relative z-10">View Network</Link>
+                </div>
+
+                <div className="luxury-card bg-white border border-border p-12 rounded-3xl space-y-8 group hover:-translate-y-2 transition-transform duration-500 shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 -translate-y-1/2 translate-x-1/2 rounded-full blur-3xl"></div>
+                    <BookOpen className="text-primary" size={40} />
+                    <div className="space-y-4 relative z-10">
+                        <h2 className="font-serif text-3xl font-bold italic">The Vault</h2>
+                        <p className="text-muted font-sans font-light leading-relaxed">Unlock proprietary legal playbooks, cross-border trade templates, and recordings of past closed-door executive strategy sessions.</p>
+                    </div>
+                    <Link href="/careers#training" className="inline-flex space-x-2 items-center mt-4 text-xs font-sans font-black uppercase tracking-widest text-primary border-b border-primary pb-1 group-hover:text-secondary group-hover:border-secondary transition-colors relative z-10">
+                        <Lock size={12} className="mr-2" /> Access Vault
+                    </Link>
+                </div>
+            </div>
+            
+            <div className="bg-white border border-border p-10 rounded-sm">
+                 <h3 className="font-serif text-2xl font-bold italic mb-6">Profile Management</h3>
+                 <div className="flex items-center justify-between border-t border-border pt-6 mt-6">
+                     <div>
+                         <p className="font-sans font-bold text-sm">Public Directory Listing</p>
+                         <p className="font-sans text-xs text-muted mt-1">Update your professional bio, practice areas, and display photo.</p>
+                     </div>
+                     <button className="bg-black text-white px-6 py-3 font-sans text-[10px] font-black uppercase tracking-widest hover:bg-secondary transition-colors shadow-xl">
+                         Edit Profile
+                     </button>
+                 </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }

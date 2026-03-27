@@ -63,10 +63,10 @@ export default function BenefitsPage() {
                         </p>
                         <div className="flex flex-wrap gap-6 pt-4">
                             <Link
-                                href="/network"
+                                href="/join-network"
                                 className="bg-secondary text-white px-10 py-5 font-sans font-black uppercase tracking-widest text-xs hover:bg-white hover:text-black transition-all shadow-2xl"
                             >
-                                Join the Network
+                                Apply for Membership
                             </Link>
                             <Link
                                 href="/network"
@@ -174,7 +174,7 @@ export default function BenefitsPage() {
                     </h2>
                     <div className="flex flex-col md:flex-row items-center justify-center gap-8">
                         <Link
-                            href="/network"
+                            href="/join-network"
                             className="w-full md:w-auto bg-secondary text-white px-12 py-6 font-sans font-black uppercase tracking-widest text-xs hover:bg-white hover:text-black transition-all shadow-2xl text-center"
                         >
                             Apply for Membership
