@@ -58,6 +58,29 @@ export default function NewsManagement() {
         }
     }
 
+    async function handleRunAutoPilot() {
+        if (!confirm("Manually trigger the Daily Social Auto-Pilot? This will find the latest unposted article and broadcast it.")) return;
+        setActionLoading(true);
+        try {
+            const res = await fetch('/api/admin/social-cron', { 
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer palf_content_engine_secret_2026' // Matches common secret
+                }
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setMessage({ type: 'success', text: "Auto-Pilot Success: " + (data.message || "Posted!") });
+            } else {
+                setMessage({ type: 'error', text: "Auto-Pilot Failed: " + data.error });
+            }
+        } catch (err: any) {
+            setMessage({ type: 'error', text: "Network Error" });
+        } finally {
+            setActionLoading(false);
+        }
+    }
+
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
         alert("Copied to clipboard!");
@@ -160,6 +183,15 @@ export default function NewsManagement() {
                     >
                         <Settings size={16} className={actionLoading ? "animate-spin" : ""} />
                         <span>AI Generate</span>
+                    </button>
+                    <button
+                        onClick={handleRunAutoPilot}
+                        disabled={actionLoading}
+                        title="Run Social Auto-Pilot"
+                        className="bg-primary/10 text-primary border border-primary/20 px-4 py-3 rounded-sm font-sans font-bold uppercase tracking-widest text-xs hover:bg-primary hover:text-white transition-all flex items-center space-x-2 shadow-sm disabled:opacity-50"
+                    >
+                        <Share2 size={16} className={actionLoading ? "animate-spin" : ""} />
+                        <span>Run Auto-Pilot</span>
                     </button>
                     <Link
                         href="/admin/news/new"
