@@ -44,7 +44,16 @@ export default function StartCasePage() {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const newFiles = Array.from(e.target.files);
-            setFiles(prev => [...prev, ...newFiles]);
+            const validFiles = newFiles.filter(file => {
+                const isAcceptableType = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png'].includes(file.type);
+                const isAcceptableSize = file.size <= 10 * 1024 * 1024; // 10MB limit
+                
+                if (!isAcceptableType) alert(`${file.name} is not a supported file type (PDF, DOCX, JPG, PNG only).`);
+                else if (!isAcceptableSize) alert(`${file.name} exceeds the 10MB size limit.`);
+                
+                return isAcceptableType && isAcceptableSize;
+            });
+            setFiles(prev => [...prev, ...validFiles]);
         }
     };
 

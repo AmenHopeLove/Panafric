@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase-client";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 import { LayoutDashboard, FileText, Users, Settings, LogOut, Loader2, ShieldCheck, Scale } from "lucide-react";
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
+    const { t } = useLanguage();
     const router = useRouter();
     const pathname = usePathname();
     const [loading, setLoading] = useState(true);
@@ -70,22 +72,22 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
                 </div>
 
                 <div className="flex-1 py-10 px-6 space-y-2">
-                    <p className="px-4 font-sans text-[10px] uppercase tracking-widest text-white/40 mb-4">{isMember ? 'Chartered Member' : 'Client Access'}</p>
+                    <p className="px-4 font-sans text-[10px] uppercase tracking-widest text-white/40 mb-4">{isMember ? t('verifiedMember') : t('consultation')}</p>
                     
                     <Link href={isMember ? "/member" : "/client"} className={`flex items-center space-x-4 px-4 py-4 rounded-xl transition-all ${pathname === (isMember ? '/member' : '/client') ? 'bg-white/10 text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}>
                         <LayoutDashboard size={18} />
-                        <span className="font-sans text-xs tracking-widest uppercase font-bold">Dashboard</span>
+                        <span className="font-sans text-xs tracking-widest uppercase font-bold">{t('portalDashboard')}</span>
                     </Link>
 
                     {isMember && (
                         <>
                             <Link href="/member/directory" className={`flex items-center space-x-4 px-4 py-4 rounded-xl transition-all ${pathname === '/member/directory' ? 'bg-white/10 text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}>
                                 <Users size={18} />
-                                <span className="font-sans text-xs tracking-widest uppercase font-bold">Directory</span>
+                                <span className="font-sans text-xs tracking-widest uppercase font-bold">{t('portalDirectory')}</span>
                             </Link>
                             <Link href="/member/resources" className={`flex items-center space-x-4 px-4 py-4 rounded-xl transition-all ${pathname === '/member/resources' ? 'bg-white/10 text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}>
                                 <FileText size={18} />
-                                <span className="font-sans text-xs tracking-widest uppercase font-bold">Vault</span>
+                                <span className="font-sans text-xs tracking-widest uppercase font-bold">{t('portalVault')}</span>
                             </Link>
                         </>
                     )}
@@ -93,7 +95,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
                     {!isMember && (
                         <Link href="/client/cases" className={`flex items-center space-x-4 px-4 py-4 rounded-xl transition-all ${pathname === '/client/cases' ? 'bg-white/10 text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}>
                             <FileText size={18} />
-                            <span className="font-sans text-xs tracking-widest uppercase font-bold">Active Cases</span>
+                            <span className="font-sans text-xs tracking-widest uppercase font-bold">{t('activeCases')}</span>
                         </Link>
                     )}
                 </div>
@@ -105,7 +107,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
                     </div>
                     <button onClick={handleSignOut} className="w-full flex items-center space-x-4 px-4 py-4 rounded-xl transition-all text-white/60 hover:bg-red-500/10 hover:text-red-500">
                         <LogOut size={18} />
-                        <span className="font-sans text-xs tracking-widest uppercase font-bold">Sign Out</span>
+                        <span className="font-sans text-xs tracking-widest uppercase font-bold">{t('portalSignOut')}</span>
                     </button>
                 </div>
             </aside>
@@ -115,7 +117,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
                 <header className="bg-white border-b border-border p-6 flex justify-end items-center sticky top-0 z-20">
                     <div className="flex items-center space-x-4 text-xs font-sans font-bold uppercase tracking-widest text-muted">
                         <ShieldCheck size={16} className="text-secondary" />
-                        <span>Encrypted Session</span>
+                        <span>{t('portalSecureSession')}</span>
                     </div>
                 </header>
                 <div className="p-8 lg:p-16">

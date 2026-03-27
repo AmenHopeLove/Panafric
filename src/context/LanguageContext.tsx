@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { supabase } from "@/lib/supabase-client";
 
-type Language = "en" | "am";
+type Language = "en" | "am" | "fr";
 
 interface LanguageContextType {
     language: Language;
@@ -150,6 +150,98 @@ const translations = {
         pressReleases: "Press Releases",
         viewAllNews: "View All News",
         backToNews: "Back to News List",
+
+        // Portal & Checkout (Step 2 & 3)
+        portalDashboard: "Dashboard",
+        portalDirectory: "Directory",
+        portalVault: "The Vault",
+        portalSignOut: "Sign Out",
+        portalSecureSession: "Encrypted Session",
+        clientDashboard: "Client Dashboard",
+        memberDashboard: "Member Dashboard",
+        newConsultation: "New Consultation",
+        activeCases: "Active Inquiries & Cases",
+        payRetainer: "Pay Retainer",
+        paymentPending: "Payment Pending",
+        verifiedMember: "Verified Member",
+        applicationUnderReview: "Application Under Review",
+        confidentialityNotice: "Confidentiality Notice",
+        vaultDesc: "Access proprietary legal frameworks, contract templates, and recordings of private executive briefings.",
+        legalJourney: "Legal Journey",
+        officialIntake: "Official Legal Intake Submission",
+        nextStep: "Next Step",
+        previousStep: "Previous Step",
+        submitCase: "Submit Case File",
+    },
+    fr: {
+        // Navbar
+        home: "Accueil",
+        about: "À Propos",
+        practiceAreas: "Domaines de Pratique",
+        insights: "Perspectives",
+        network: "Réseau",
+        news: "Actualités",
+        careers: "Carrières",
+        consultation: "Consultation",
+        bookConsultation: "Réserver une Consultation",
+
+        // Home
+        heroSubtitle: "Premier Collaboration Juridique de l'Afrique",
+        heroTitlePart1: "Expertise, Opportunité, ",
+        heroTitlePart2: "& Justice sans Frontières.",
+        heroDesc: "Pan Afric Law Firm connecte les professionnels du droit, les cabinets d'avocats et les investisseurs dans un puissant écosystème continental de connaissances et de croissance.",
+        joinNetwork: "Rejoindre le Réseau",
+        learnMore: "En Savoir Plus",
+        advancingExcellence: "Faire progresser l'excellence juridique grâce à la connectivité numérique et à la synergie professionnelle.",
+
+        // Stats
+        verifiedPartners: "Partenaires Vérifiés",
+        africanMarkets: "Marchés Africains",
+        insightsPublished: "Perspectives Publiées",
+        smartSupport: "Support Intelligent",
+
+        // Pillars
+        howWeOperate: "Comment Nous Opérons",
+        fourPillars: "Les Quatre Piliers de l'Excellence",
+        pillar1Title: "Autorité Juridique",
+        pillar1Desc: "Conseils d'experts basés sur des décennies d'expérience juridique multi-juridictionnelle.",
+        pillar2Title: "Portée Panafricaine",
+        pillar2Desc: "Une porte d'entrée unique pour la coopération juridique transfrontalière sur le continent.",
+        pillar3Title: "Échange Sécurisé",
+        pillar3Desc: "Sécurité de niveau entreprise pour le partage de documents et la collaboration professionnelle.",
+        pillar4Title: "Intelligence Juridique",
+        pillar4Desc: "Perspectives organisées, mises à jour réglementaires et analyses d'experts pour les parties prenantes.",
+
+        // About Page
+        aboutTitle: "À Propos de Pan Afric Law Firm",
+        visionTitle: "Notre Vision",
+        visionDesc: "Être le cabinet d'avocats le plus fiable et le plus respecté de notre communauté, connu pour notre excellence juridique, nos normes éthiques et notre dévouement au service client.",
+        missionTitle: "Notre Mission",
+        missionDesc: "Fournir des services juridiques de haute qualité avec intégrité, efficacité et un engagement à obtenir les meilleurs résultats possibles pour nos clients.",
+        leadershipTitle: "Notre Direction",
+        leadershipDesc: "Guidée par une vision panafricaine et des normes juridiques mondiales.",
+
+        // Portal
+        portalDashboard: "Tableau de Bord",
+        portalDirectory: "Annuaire",
+        portalVault: "Le Coffre-fort",
+        portalSignOut: "Déconnexion",
+        portalSecureSession: "Session Chiffrée",
+        clientDashboard: "Tableau de Bord Client",
+        memberDashboard: "Tableau de Bord Membre",
+        newConsultation: "Nouvelle Consultation",
+        activeCases: "Enquêtes et Cas Actifs",
+        payRetainer: "Payer l'Acompte",
+        paymentPending: "Paiement en Attente",
+        verifiedMember: "Membre Vérifié",
+        applicationUnderReview: "Candidature en cours d'Examen",
+        confidentialityNotice: "Avis de Confidentialité",
+        vaultDesc: "Accédez aux cadres juridiques exclusifs, aux modèles de contrats et aux enregistrements de séances d'information privées.",
+        legalJourney: "Parcours Juridique",
+        officialIntake: "Soumission Officielle d'Admission Juridique",
+        nextStep: "Étape Suivante",
+        previousStep: "Étape Précédente",
+        submitCase: "Soumettre le Dossier",
     },
     am: {
         // Navbar
@@ -288,6 +380,28 @@ const translations = {
         pressReleases: "ጋዜጣዊ መግለጫዎች",
         viewAllNews: "ሁሉንም ዜናዎች ተመልከት",
         backToNews: "ወደ ዜና ዝርዝር ይመለሱ",
+
+        // Portal
+        portalDashboard: "ዳሽቦርድ",
+        portalDirectory: "ዳይሬክቶሪ",
+        portalVault: "ቮልት (መዝገብ)",
+        portalSignOut: "ውጣ",
+        portalSecureSession: "ደህንነቱ የተጠበቀ ግንኙነት",
+        clientDashboard: "የደንበኞች ዳሽቦርድ",
+        memberDashboard: "የአባላት ዳሽቦርድ",
+        newConsultation: "አዲስ ምክክር",
+        activeCases: "ንቁ ጉዳዮች እና ጥያቄዎች",
+        payRetainer: "ቅድመ ክፍያ ይፈጽሙ",
+        paymentPending: "ክፍያ በመጠባበቅ ላይ",
+        verifiedMember: "የተረጋገጠ አባል",
+        applicationUnderReview: "ማመልከቻው በመታየት ላይ ነው",
+        confidentialityNotice: "የሚስጥር ማስታወቂያ",
+        vaultDesc: "የባለቤትነት የሕግ ማዕቀፎችን፣ የውል አብነቶችን እና የግል ስራ አስፈፃሚ መግለጫዎችን ቅጂዎች ያግኙ።",
+        legalJourney: "የሕግ ጉዞ",
+        officialIntake: "ኦፊሴላዊ የሕግ ቅበላ አቀራረብ",
+        nextStep: "ቀጣይ እርምጃ",
+        previousStep: "ቀዳሚ እርምጃ",
+        submitCase: "ጉዳዩን ያስገቡ",
     }
 };
 

@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase-client";
 import { ShieldAlert, CheckCircle, Lock, BookOpen, Users } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function MemberDashboard() {
+    const { t } = useLanguage();
     const [application, setApplication] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
@@ -41,7 +43,7 @@ export default function MemberDashboard() {
                     <div className="absolute top-0 left-0 w-full h-1 bg-yellow-400"></div>
                     <ShieldAlert className="mx-auto text-yellow-500" size={64} />
                     <div className="space-y-4">
-                        <h1 className="font-serif text-5xl font-black italic">Application Under Review</h1>
+                        <h1 className="font-serif text-5xl font-black italic">{t('applicationUnderReview')}</h1>
                         <p className="font-sans text-muted text-lg max-w-xl mx-auto leading-relaxed">
                             Thank you for applying to the Pan-Afric Law Network. The executive committee is currently verifying your credentials. 
                             You will receive an email once your Chartered Membership is approved.
@@ -49,7 +51,7 @@ export default function MemberDashboard() {
                     </div>
                     <div className="inline-flex items-center space-x-3 bg-gray-50 px-6 py-3 rounded-full border border-border">
                         <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
-                        <span className="font-sans text-[10px] font-black uppercase tracking-widest">Status: Pending Verification</span>
+                        <span className="font-sans text-[10px] font-black uppercase tracking-widest">Status: {t('paymentPending')}</span>
                     </div>
                 </div>
             </div>
@@ -62,9 +64,9 @@ export default function MemberDashboard() {
                 <div className="space-y-4">
                     <div className="inline-flex items-center space-x-2 text-secondary bg-secondary/10 px-3 py-1 rounded-sm">
                         <CheckCircle size={14} />
-                        <span className="font-sans text-[10px] font-black uppercase tracking-[0.2em]">Verified Member</span>
+                        <span className="font-sans text-[10px] font-black uppercase tracking-[0.2em]">{t('verifiedMember')}</span>
                     </div>
-                    <h1 className="font-serif text-5xl font-black italic">Welcome, {application.full_name}</h1>
+                    <h1 className="font-serif text-5xl font-black italic">{t('memberDashboard')}, {application.full_name}</h1>
                 </div>
             </div>
 

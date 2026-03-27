@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase-client";
 import { FileText, Clock, AlertCircle, Plus, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function ClientDashboard() {
+    const { t } = useLanguage();
     const [consultations, setConsultations] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [userEmail, setUserEmail] = useState("");
@@ -39,18 +41,18 @@ export default function ClientDashboard() {
         <div className="max-w-6xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-border pb-8">
                 <div className="space-y-4">
-                    <h1 className="font-serif text-5xl font-black italic">Client Dashboard</h1>
+                    <h1 className="font-serif text-5xl font-black italic">{t('clientDashboard')}</h1>
                     <p className="font-sans text-muted text-lg tracking-wide font-light">
                         Manage your active inquiries and case files securely.
                     </p>
                 </div>
                 <Link href="/contact" className="bg-black text-white px-8 py-4 font-sans text-[10px] font-black uppercase tracking-widest shadow-xl flex items-center hover:bg-secondary transition-all">
-                    <Plus size={14} className="mr-2" /> New Consultation
+                    <Plus size={14} className="mr-2" /> {t('newConsultation')}
                 </Link>
             </div>
 
             <div className="space-y-8">
-                <h2 className="font-sans text-xs font-black uppercase tracking-[0.2em] text-black">Active Inquiries & Cases</h2>
+                <h2 className="font-sans text-xs font-black uppercase tracking-[0.2em] text-black">{t('activeCases')}</h2>
                 
                 {consultations.length === 0 ? (
                     <div className="bg-white border border-dashed border-border p-20 text-center rounded-sm">
@@ -82,7 +84,7 @@ export default function ClientDashboard() {
                                         item.status === 'resolved' ? 'bg-emerald-100 text-emerald-800' : 
                                         'bg-blue-100 text-blue-800'
                                     }`}>
-                                        {item.status ? item.status.replace('_', ' ') : 'Under Review'}
+                                        {item.status ? (item.status === 'payment_pending' ? t('paymentPending') : item.status.replace('_', ' ')) : 'Under Review'}
                                     </span>
                                     
                                     {(item.status === 'pending' || item.status === 'payment_pending') ? (
@@ -109,7 +111,7 @@ export default function ClientDashboard() {
                                             }}
                                             className="bg-black text-white px-6 py-3 font-sans text-[10px] font-black uppercase tracking-widest hover:bg-secondary transition-colors shadow-lg flex items-center justify-center whitespace-nowrap"
                                         >
-                                            Pay Retainer ($250)
+                                            {t('payRetainer')} ($250)
                                         </button>
                                     ) : (
                                         <div className="w-10 flex justify-end">
