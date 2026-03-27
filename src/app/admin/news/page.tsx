@@ -12,7 +12,10 @@ import {
     Loader2,
     AlertCircle,
     CheckCircle2,
-    Settings
+    Settings,
+    Share2,
+    Copy,
+    X as CloseIcon
 } from "lucide-react";
 import Link from "next/link";
 
@@ -24,9 +27,41 @@ export default function NewsManagement() {
     const [actionLoading, setActionLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
+    // Social Post State
+    const [showSocialModal, setShowSocialModal] = useState(false);
+    const [generatingSocial, setGeneratingSocial] = useState(false);
+    const [socialPosts, setSocialPosts] = useState<{ linkedin: string, twitter: string, facebook: string } | null>(null);
+
     useEffect(() => {
         fetchNews();
     }, []);
+
+    async function handleGenerateSocial(id: number) {
+        setGeneratingSocial(true);
+        setShowSocialModal(true);
+        setSocialPosts(null);
+        try {
+            const res = await fetch('/api/admin/generate-social-post', {
+                method: 'POST',
+                body: JSON.stringify({ articleId: id })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setSocialPosts(data);
+            } else {
+                setMessage({ type: 'error', text: "Social AI Error: " + data.error });
+            }
+        } catch (err: any) {
+            setMessage({ type: 'error', text: "Network Error" });
+        } finally {
+            setGeneratingSocial(false);
+        }
+    }
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+        alert("Copied to clipboard!");
+    };
 
     async function fetchNews() {
         setLoading(true);
@@ -186,6 +221,13 @@ export default function NewsManagement() {
                                         >
                                             <ExternalLink size={16} />
                                         </Link>
+                                        <button
+                                            onClick={() => handleGenerateSocial(item.id)}
+                                            className="p-2 text-muted hover:text-primary transition-colors"
+                                            title="AI Social Post"
+                                        >
+                                            <Share2 size={16} />
+                                        </button>
                                         <Link
                                             href={`/admin/news/edit/${item.id}`}
                                             className="p-2 text-muted hover:text-secondary transition-colors"
@@ -235,6 +277,75 @@ export default function NewsManagement() {
                             >
                                 Cancel
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* AI Social Modal */}
+            {showSocialModal && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+                    <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto p-12 rounded-sm shadow-2xl relative animate-in zoom-in-95">
+                        <button
+                            onClick={() => setShowSocialModal(false)}
+                            className="absolute top-8 right-8 text-muted hover:text-black transition-colors"
+                        >
+                            <CloseIcon size={24} />
+                        </button>
+
+                        <div className="space-y-12">
+                            <div className="space-y-4">
+                                <h3 className="font-serif text-4xl font-black italic">Social Media Drafts</h3>
+                                <p className="text-muted font-sans font-light">AI generated posts for your Pan Afric network.</p>
+                            </div>
+
+                            {generatingSocial ? (
+                                <div className="py-20 text-center space-y-4">
+                                    <Loader2 className="h-12 w-12 animate-spin mx-auto text-secondary" />
+                                    <p className="font-serif italic text-2xl">Writing your viral story...</p>
+                                </div>
+                            ) : socialPosts && (
+                                <div className="grid gap-10">
+                                    <div className="space-y-6 bg-slate-50 p-10 border border-slate-100 rounded-sm group relative text-black">
+                                        <div className="flex justify-between items-center">
+                                            <h4 className="font-sans text-xs font-black uppercase tracking-[0.3em] text-secondary">LinkedIn Professional</h4>
+                                            <button
+                                                onClick={() => copyToClipboard(socialPosts.linkedin)}
+                                                className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest hover:text-secondary transition-all"
+                                            >
+                                                <Copy size={14} /> <span>Copy</span>
+                                            </button>
+                                        </div>
+                                        <p className="font-sans text-base leading-relaxed whitespace-pre-wrap">{socialPosts.linkedin}</p>
+                                    </div>
+
+                                    <div className="space-y-6 bg-slate-50 p-10 border border-slate-100 rounded-sm group relative text-black">
+                                        <div className="flex justify-between items-center">
+                                            <h4 className="font-sans text-xs font-black uppercase tracking-[0.3em] text-secondary">Twitter / X</h4>
+                                            <button
+                                                onClick={() => copyToClipboard(socialPosts.twitter)}
+                                                className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest hover:text-secondary transition-all"
+                                            >
+                                                <Copy size={14} /> <span>Copy</span>
+                                            </button>
+                                        </div>
+                                        <p className="font-sans text-base leading-relaxed whitespace-pre-wrap">{socialPosts.twitter}</p>
+                                    </div>
+
+                                    <div className="space-y-6 bg-slate-50 p-10 border border-slate-100 rounded-sm group relative text-black">
+                                        <div className="flex justify-between items-center">
+                                            <h4 className="font-sans text-xs font-black uppercase tracking-[0.3em] text-secondary">Facebook / Instagram</h4>
+                                            <button
+                                                onClick={() => copyToClipboard(socialPosts.facebook)}
+                                                className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest hover:text-secondary transition-all"
+                                            >
+                                                <Copy size={14} /> <span>Copy</span>
+                                            </button>
+                                        </div>
+                                        <p className="font-sans text-base leading-relaxed whitespace-pre-wrap">{socialPosts.facebook}</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
