@@ -63,6 +63,24 @@ export default function NewsManagement() {
         alert("Copied to clipboard!");
     };
 
+    const openShareIntent = (platform: 'linkedin' | 'twitter' | 'facebook', text: string) => {
+        const url = encodeURIComponent(window.location.origin); // Fallback to homepage or specific article link if available
+        let intentUrl = "";
+        
+        switch(platform) {
+            case 'linkedin':
+                intentUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}&text=${encodeURIComponent(text)}`;
+                break;
+            case 'twitter':
+                intentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+                break;
+            case 'facebook':
+                intentUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${encodeURIComponent(text)}`;
+                break;
+        }
+        window.open(intentUrl, '_blank');
+    };
+
     async function fetchNews() {
         setLoading(true);
         const { data, error } = await supabase
@@ -309,12 +327,20 @@ export default function NewsManagement() {
                                     <div className="space-y-6 bg-slate-50 p-10 border border-slate-100 rounded-sm group relative text-black">
                                         <div className="flex justify-between items-center">
                                             <h4 className="font-sans text-xs font-black uppercase tracking-[0.3em] text-secondary">LinkedIn Professional</h4>
-                                            <button
-                                                onClick={() => copyToClipboard(socialPosts.linkedin)}
-                                                className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest hover:text-secondary transition-all"
-                                            >
-                                                <Copy size={14} /> <span>Copy</span>
-                                            </button>
+                                            <div className="flex items-center space-x-4">
+                                                <button
+                                                    onClick={() => openShareIntent('linkedin', socialPosts.linkedin)}
+                                                    className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest text-primary hover:text-secondary transition-all"
+                                                >
+                                                    <ExternalLink size={14} /> <span>Open Post</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => copyToClipboard(socialPosts.linkedin)}
+                                                    className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest hover:text-secondary transition-all"
+                                                >
+                                                    <Copy size={14} /> <span>Copy</span>
+                                                </button>
+                                            </div>
                                         </div>
                                         <p className="font-sans text-base leading-relaxed whitespace-pre-wrap">{socialPosts.linkedin}</p>
                                     </div>
@@ -322,12 +348,20 @@ export default function NewsManagement() {
                                     <div className="space-y-6 bg-slate-50 p-10 border border-slate-100 rounded-sm group relative text-black">
                                         <div className="flex justify-between items-center">
                                             <h4 className="font-sans text-xs font-black uppercase tracking-[0.3em] text-secondary">Twitter / X</h4>
-                                            <button
-                                                onClick={() => copyToClipboard(socialPosts.twitter)}
-                                                className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest hover:text-secondary transition-all"
-                                            >
-                                                <Copy size={14} /> <span>Copy</span>
-                                            </button>
+                                            <div className="flex items-center space-x-4">
+                                                <button
+                                                    onClick={() => openShareIntent('twitter', socialPosts.twitter)}
+                                                    className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest text-primary hover:text-secondary transition-all"
+                                                >
+                                                    <ExternalLink size={14} /> <span>Open & Post</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => copyToClipboard(socialPosts.twitter)}
+                                                    className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest hover:text-secondary transition-all"
+                                                >
+                                                    <Copy size={14} /> <span>Copy</span>
+                                                </button>
+                                            </div>
                                         </div>
                                         <p className="font-sans text-base leading-relaxed whitespace-pre-wrap">{socialPosts.twitter}</p>
                                     </div>
@@ -335,12 +369,20 @@ export default function NewsManagement() {
                                     <div className="space-y-6 bg-slate-50 p-10 border border-slate-100 rounded-sm group relative text-black">
                                         <div className="flex justify-between items-center">
                                             <h4 className="font-sans text-xs font-black uppercase tracking-[0.3em] text-secondary">Facebook / Instagram</h4>
-                                            <button
-                                                onClick={() => copyToClipboard(socialPosts.facebook)}
-                                                className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest hover:text-secondary transition-all"
-                                            >
-                                                <Copy size={14} /> <span>Copy</span>
-                                            </button>
+                                            <div className="flex items-center space-x-4">
+                                                <button
+                                                    onClick={() => openShareIntent('facebook', socialPosts.facebook)}
+                                                    className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest text-primary hover:text-secondary transition-all"
+                                                >
+                                                    <ExternalLink size={14} /> <span>Open Post</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => copyToClipboard(socialPosts.facebook)}
+                                                    className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest hover:text-secondary transition-all"
+                                                >
+                                                    <Copy size={14} /> <span>Copy</span>
+                                                </button>
+                                            </div>
                                         </div>
                                         <p className="font-sans text-base leading-relaxed whitespace-pre-wrap">{socialPosts.facebook}</p>
                                     </div>
