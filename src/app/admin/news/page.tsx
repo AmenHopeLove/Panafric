@@ -70,7 +70,9 @@ export default function NewsManagement() {
             });
             const data = await res.json();
             if (res.ok) {
-                setMessage({ type: 'success', text: "Auto-Pilot Success: " + (data.message || "Posted!") });
+                setSocialPosts(data);
+                setShowSocialModal(true);
+                alert("Auto-Pilot generated your posts! Check the modal to 'Power-Share' them to LinkedIn, X, and Facebook for free.");
             } else {
                 setMessage({ type: 'error', text: "Auto-Pilot Failed: " + data.error });
             }
