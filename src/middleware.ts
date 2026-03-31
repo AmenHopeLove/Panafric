@@ -2,6 +2,14 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+    const hostname = request.headers.get('host') || ''
+    
+    // Domain redirection: panafriclawfirm.com -> palf-web-platform.vercel.app
+    if (hostname.includes('panafriclawfirm.com')) {
+        const nextUrl = new URL(request.nextUrl.pathname + request.nextUrl.search, 'https://palf-web-platform.vercel.app')
+        return NextResponse.redirect(nextUrl)
+    }
+
     let response = NextResponse.next({
         request: {
             headers: request.headers,
@@ -59,5 +67,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/client/:path*', '/member/:path*', '/login'],
+    matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 }
