@@ -4,11 +4,6 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
     const hostname = request.headers.get('host') || ''
     
-    // Domain redirection: panafriclawfirm.com -> palf-web-platform.vercel.app
-    if (hostname.includes('panafriclawfirm.com')) {
-        const nextUrl = new URL(request.nextUrl.pathname + request.nextUrl.search, 'https://palf-web-platform.vercel.app')
-        return NextResponse.redirect(nextUrl)
-    }
 
     let response = NextResponse.next({
         request: {
