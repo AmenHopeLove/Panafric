@@ -13,7 +13,7 @@ export default function Footer() {
                                 <img 
                                     src="/logo-icon.png" 
                                     alt="Pan Afric Logo" 
-                                    className="h-8 w-auto object-contain" 
+                                    className="h-12 w-auto object-contain" 
                                 />
                             </div>
                             <div className="flex flex-col">
