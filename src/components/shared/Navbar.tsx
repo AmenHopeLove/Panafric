@@ -27,9 +27,11 @@ export default function Navbar() {
                 <div className="flex justify-between h-16 items-center">
                     {/* Logo */}
                     <Link href="/" className="flex items-center space-x-3 group">
-                        <div className="bg-primary p-1.5 rounded-full group-hover:scale-110 transition-transform duration-500">
-                            <Scale className="h-5 w-5 text-secondary" />
-                        </div>
+                        <img 
+                            src="/logo-icon.png" 
+                            alt="Pan Afric Logo" 
+                            className="h-10 w-auto object-contain group-hover:scale-110 transition-transform duration-500" 
+                        />
                         <div className="flex flex-col">
                             <span className="font-serif text-lg font-black leading-none tracking-tight text-primary">
                                 PAN AFRIC

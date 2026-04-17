@@ -9,8 +9,12 @@ export default function Footer() {
                     {/* Brand */}
                     <div className="space-y-8">
                         <div className="flex items-center space-x-3 group">
-                            <div className="bg-secondary p-1.5 rounded-full">
-                                <Scale className="h-5 w-5 text-primary" />
+                            <div className="bg-white p-2 rounded-xl group-hover:scale-105 transition-transform duration-500">
+                                <img 
+                                    src="/logo-icon.png" 
+                                    alt="Pan Afric Logo" 
+                                    className="h-8 w-auto object-contain" 
+                                />
                             </div>
                             <div className="flex flex-col">
                                 <span className="font-serif text-2xl font-black leading-none tracking-tight">PAN AFRIC</span>
