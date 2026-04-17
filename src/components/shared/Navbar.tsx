@@ -30,7 +30,7 @@ export default function Navbar() {
                         <img 
                             src="/logo-icon.png" 
                             alt="Pan Afric Logo" 
-                            className="h-14 w-auto object-contain group-hover:scale-110 transition-transform duration-500" 
+                            className="h-18 w-auto object-contain group-hover:scale-110 transition-transform duration-500" 
                         />
                         <div className="flex flex-col">
                             <span className="font-serif text-lg font-black leading-none tracking-tight text-primary">
