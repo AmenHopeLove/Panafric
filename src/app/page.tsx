@@ -7,7 +7,22 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase-client";
 
 export default function Home() {
-  const { t } = useLanguage();
+  const { t, config } = useLanguage();
+  
+  const bannerUrl = config?.home_hero_banner?.image_url || "";
+  const overlayOpacity = parseFloat(config?.home_hero_banner?.overlay_opacity || "0.6");
+
+  const videoUrl = config?.home_video_url?.url || "";
+  const videoTitle = config?.home_video_url?.title || "Watch Our Story: Legal Excellence Across Africa";
+
+  const getYouTubeId = (url: string) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+  
+  const youtubeId = getYouTubeId(videoUrl);
 
   return (
     <div className="flex flex-col">
@@ -15,9 +30,23 @@ export default function Home() {
       <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-primary text-white">
         {/* Luxury Background FX */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,_rgba(194,65,12,0.15),_transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,_rgba(255,255,255,0.02),_transparent_50%)]" />
-          <div className="absolute inset-0 bg-gradient-to-br from-black via-transparent to-black opacity-80" />
+          {bannerUrl ? (
+            <div 
+              className="absolute inset-0 bg-cover bg-center transition-all duration-1000" 
+              style={{ backgroundImage: `url(${bannerUrl})` }}
+            />
+          ) : (
+            <>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,_rgba(194,65,12,0.15),_transparent_50%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,_rgba(255,255,255,0.02),_transparent_50%)]" />
+            </>
+          )}
+
+          {/* Dynamic dark overlay to ensure readability */}
+          <div 
+            className="absolute inset-0 bg-gradient-to-br from-black via-transparent to-black transition-all" 
+            style={{ opacity: bannerUrl ? overlayOpacity : 0.8 }} 
+          />
           
           {/* Elegant gold dust texture */}
           <div className="absolute inset-0 opacity-[0.05] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]" />
@@ -148,6 +177,53 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Video Section */}
+      {youtubeId && (
+        <section className="py-32 bg-[#fcfcfc] overflow-hidden border-t border-border">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-12 gap-16 items-center">
+              {/* Left Content */}
+              <div className="lg:col-span-5 space-y-8">
+                <div className="w-16 h-1 brand-gradient rounded-full" />
+                <h2 className="font-sans text-secondary font-black uppercase tracking-[0.4em] text-[10px]">
+                  Featured Broadcast
+                </h2>
+                <h3 className="font-serif text-4xl md:text-5xl font-black text-black leading-tight tracking-tight">
+                  {videoTitle}
+                </h3>
+                <p className="text-muted text-lg font-sans font-light leading-relaxed">
+                  Discover how our Pan-African network of legal experts leverages local expertise and global standards to advance justice, facilitate trade, and drive progress across the continent.
+                </p>
+                <div className="flex items-center space-x-6 pt-4">
+                  <div className="flex -space-x-4">
+                    <div className="w-12 h-12 rounded-full border-2 border-white bg-primary flex items-center justify-center text-white font-serif text-xs font-black shadow-lg">PA</div>
+                    <div className="w-12 h-12 rounded-full border-2 border-white bg-secondary flex items-center justify-center text-white font-serif text-xs font-black shadow-lg">LF</div>
+                  </div>
+                  <div>
+                    <p className="font-sans text-[10px] font-black uppercase tracking-widest text-black">Pan Afric Law Firm & Network</p>
+                    <p className="font-sans text-[8px] uppercase tracking-widest text-muted">Excellence in Action</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Player Container */}
+              <div className="lg:col-span-7">
+                <div className="relative group rounded-[40px] overflow-hidden shadow-2xl border-4 border-accent aspect-video bg-black hover:scale-[1.02] transition-transform duration-700">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${youtubeId}`}
+                    title={videoTitle}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full"
+                  ></iframe>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Recent News Section */}
       <HomeNewsSection />

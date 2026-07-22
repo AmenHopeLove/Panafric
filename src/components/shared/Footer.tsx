@@ -62,7 +62,7 @@ export default function Footer() {
                                 <div className="bg-white/5 p-2 rounded-lg group-hover:bg-secondary transition-colors">
                                     <MapPin size={16} className="text-secondary group-hover:text-primary transition-colors" />
                                 </div>
-                                <span className="text-muted leading-relaxed">Lideta, Wil eshet Building, 4th floor<br />Addis Ababa, Ethiopia</span>
+                                <span className="text-muted leading-relaxed">Lideta, Wil eshet Hospital, 4th floor<br />Addis Ababa, Ethiopia</span>
                             </li>
                             <li className="flex items-center space-x-4 group">
                                 <div className="bg-white/5 p-2 rounded-lg group-hover:bg-secondary transition-colors">

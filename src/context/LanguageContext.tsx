@@ -124,7 +124,7 @@ const translations = {
         formMessage: "Message / Inquiry Details",
         submitInquiry: "Submit Secure Inquiry",
         addressTitle: "Headquarters",
-        addressDetail: "Lideta, Wil eshet Building, 4th floor, Addis Ababa, Ethiopia",
+        addressDetail: "Lideta, Wil eshet Hospital, 4th floor, Addis Ababa, Ethiopia",
         phoneTitle: "Direct Line",
         emailTitle: "info@panafriclawfirm.com",
 
@@ -354,7 +354,7 @@ const translations = {
         formMessage: "መልዕክት / የጥያቄ ዝርዝሮች",
         submitInquiry: "ደህንነቱ የተጠበቀ ጥያቄ ያስገቡ",
         addressTitle: "ዋና መሥሪያ ቤት",
-        addressDetail: "ልደታ፣ ውል እሸት ህንፃ፣ 4ኛ ፎቅ፣ አዲስ አበባ፣ ኢትዮጵያ",
+        addressDetail: "ልደታ፣ ውል እሸት ሆስፒታል፣ 4ኛ ፎቅ፣ አዲስ አበባ፣ ኢትዮጵያ",
         phoneTitle: "ቀጥተኛ መስመር",
         emailTitle: "info@panafriclawfirm.com",
 

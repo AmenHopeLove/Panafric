@@ -26,7 +26,10 @@ const MOCK_INSIGHTS = [
 ];
 
 export default function InsightsClient() {
-    const { t } = useLanguage();
+    const { t, config } = useLanguage();
+    
+    const bannerUrl = config?.insights_hero_banner?.image_url || "";
+    const overlayOpacity = parseFloat(config?.insights_hero_banner?.overlay_opacity || "0.6");
     const [activeCategory, setActiveCategory] = useState("All");
     const [insights, setInsights] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -65,7 +68,19 @@ export default function InsightsClient() {
         <div className="flex flex-col bg-white">
             {/* Header Section - Editorial Style */}
             <section className="py-48 relative overflow-hidden bg-primary">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,_rgba(194,65,12,0.1),_transparent_50%)]" />
+                {bannerUrl ? (
+                    <div 
+                        className="absolute inset-0 bg-cover bg-center transition-all duration-1000" 
+                        style={{ backgroundImage: `url(${bannerUrl})` }}
+                    />
+                ) : (
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,_rgba(194,65,12,0.1),_transparent_50%)]" />
+                )}
+                {/* Dynamic dark overlay */}
+                <div 
+                    className="absolute inset-0 bg-gradient-to-br from-black via-transparent to-black transition-all" 
+                    style={{ opacity: bannerUrl ? overlayOpacity : 0.8 }} 
+                />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="max-w-4xl space-y-8">
                         <div className="w-24 h-1 brand-gradient rounded-full" />

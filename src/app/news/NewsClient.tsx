@@ -25,7 +25,10 @@ const MOCK_NEWS = [
 ];
 
 export default function NewsClient() {
-    const { t } = useLanguage();
+    const { t, config } = useLanguage();
+    
+    const bannerUrl = config?.news_hero_banner?.image_url || "";
+    const overlayOpacity = parseFloat(config?.news_hero_banner?.overlay_opacity || "0.6");
     const [activeCategory, setActiveCategory] = useState("All");
     const [news, setNews] = useState(MOCK_NEWS);
     const [loading, setLoading] = useState(true);
@@ -66,13 +69,25 @@ export default function NewsClient() {
     return (
         <div className="flex flex-col bg-white">
             <section className="relative py-32 lg:py-48 bg-black overflow-hidden">
-                <div className="absolute inset-0 opacity-40">
-                    <img
-                        src="https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&q=80&w=2000"
-                        alt="News and Media"
-                        className="w-full h-full object-cover grayscale"
+                {bannerUrl ? (
+                    <div 
+                        className="absolute inset-0 bg-cover bg-center transition-all duration-1000" 
+                        style={{ backgroundImage: `url(${bannerUrl})` }}
                     />
-                </div>
+                ) : (
+                    <div className="absolute inset-0 opacity-40">
+                        <img
+                            src="https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&q=80&w=2000"
+                            alt="News and Media"
+                            className="w-full h-full object-cover grayscale"
+                        />
+                    </div>
+                )}
+                {/* Dynamic dark overlay */}
+                <div 
+                    className="absolute inset-0 bg-gradient-to-br from-black via-transparent to-black transition-all" 
+                    style={{ opacity: bannerUrl ? overlayOpacity : 0.6 }} 
+                />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="max-w-4xl">
                         <h2 className="font-sans text-secondary font-bold uppercase tracking-[0.3em] text-xs mb-6">
