@@ -28,8 +28,9 @@ const MOCK_INSIGHTS = [
 export default function InsightsClient() {
     const { t, config } = useLanguage();
     
-    const bannerUrl = config?.insights_hero_banner?.image_url || "";
-    const overlayOpacity = parseFloat(config?.insights_hero_banner?.overlay_opacity || "0.6");
+    const insightsBanner = config?.INSIGHTS_HERO_BANNER || config?.insights_hero_banner;
+    const bannerUrl = insightsBanner?.image_url || "";
+    const overlayOpacity = parseFloat(insightsBanner?.overlay_opacity || "0.6");
     const [activeCategory, setActiveCategory] = useState("All");
     const [insights, setInsights] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);

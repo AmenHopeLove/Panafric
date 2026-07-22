@@ -27,8 +27,9 @@ const MOCK_NEWS = [
 export default function NewsClient() {
     const { t, config } = useLanguage();
     
-    const bannerUrl = config?.news_hero_banner?.image_url || "";
-    const overlayOpacity = parseFloat(config?.news_hero_banner?.overlay_opacity || "0.6");
+    const newsBanner = config?.NEWS_HERO_BANNER || config?.news_hero_banner;
+    const bannerUrl = newsBanner?.image_url || "";
+    const overlayOpacity = parseFloat(newsBanner?.overlay_opacity || "0.6");
     const [activeCategory, setActiveCategory] = useState("All");
     const [news, setNews] = useState(MOCK_NEWS);
     const [loading, setLoading] = useState(true);

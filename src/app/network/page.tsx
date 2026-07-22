@@ -12,8 +12,9 @@ const EXPERTISE = ["All Expertise", "Corporate", "Trade", "Litigation", "Real Es
 export default function NetworkPage() {
     const { t, config } = useLanguage();
     
-    const bannerUrl = config?.network_hero_banner?.image_url || "";
-    const overlayOpacity = parseFloat(config?.network_hero_banner?.overlay_opacity || "0.6");
+    const networkBanner = config?.NETWORK_HERO_BANNER || config?.network_hero_banner;
+    const bannerUrl = networkBanner?.image_url || "";
+    const overlayOpacity = parseFloat(networkBanner?.overlay_opacity || "0.6");
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCountry, setSelectedCountry] = useState("All Countries");
     const [selectedExpertise, setSelectedExpertise] = useState("All Expertise");

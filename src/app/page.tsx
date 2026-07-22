@@ -9,11 +9,13 @@ import { supabase } from "@/lib/supabase-client";
 export default function Home() {
   const { t, config } = useLanguage();
   
-  const bannerUrl = config?.home_hero_banner?.image_url || "";
-  const overlayOpacity = parseFloat(config?.home_hero_banner?.overlay_opacity || "0.6");
+  const homeBanner = config?.HOME_HERO_BANNER || config?.home_hero_banner;
+  const bannerUrl = homeBanner?.image_url || "";
+  const overlayOpacity = parseFloat(homeBanner?.overlay_opacity || "0.6");
 
-  const videoUrl = config?.home_video_url?.url || "";
-  const videoTitle = config?.home_video_url?.title || "Watch Our Story: Legal Excellence Across Africa";
+  const homeVideo = config?.HOME_VIDEO_URL || config?.home_video_url;
+  const videoUrl = homeVideo?.url || "";
+  const videoTitle = homeVideo?.title || "Watch Our Story: Legal Excellence Across Africa";
 
   const getYouTubeId = (url: string) => {
     if (!url) return null;

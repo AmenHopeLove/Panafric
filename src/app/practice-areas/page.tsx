@@ -16,8 +16,9 @@ import {
 export default function PracticeAreas() {
     const { t, config } = useLanguage();
     
-    const bannerUrl = config?.practice_areas_hero_banner?.image_url || "";
-    const overlayOpacity = parseFloat(config?.practice_areas_hero_banner?.overlay_opacity || "0.6");
+    const paBanner = config?.PRACTICE_AREAS_HERO_BANNER || config?.practice_areas_hero_banner;
+    const bannerUrl = paBanner?.image_url || "";
+    const overlayOpacity = parseFloat(paBanner?.overlay_opacity || "0.6");
 
     const practices = [
         { icon: <Building2 />, title: t("practice1Title"), desc: t("practice1Desc") },

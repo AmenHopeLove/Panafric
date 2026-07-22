@@ -20,22 +20,22 @@ import {
 } from "lucide-react";
 
 const BANNER_IDS = [
-    { id: 'home_hero_banner', name: 'Homepage Banner', category: 'home' },
-    { id: 'about_hero_banner', name: 'About Page Banner', category: 'about' },
-    { id: 'practice_areas_hero_banner', name: 'Practice Areas Banner', category: 'practice-areas' },
-    { id: 'insights_hero_banner', name: 'Insights Page Banner', category: 'insights' },
-    { id: 'news_hero_banner', name: 'News Page Banner', category: 'news' },
-    { id: 'network_hero_banner', name: 'Network Page Banner', category: 'network' }
+    { id: 'HOME_HERO_BANNER', name: 'Homepage Banner', category: 'home' },
+    { id: 'ABOUT_HERO_BANNER', name: 'About Page Banner', category: 'about' },
+    { id: 'PRACTICE_AREAS_HERO_BANNER', name: 'Practice Areas Banner', category: 'practice-areas' },
+    { id: 'INSIGHTS_HERO_BANNER', name: 'Insights Page Banner', category: 'insights' },
+    { id: 'NEWS_HERO_BANNER', name: 'News Page Banner', category: 'news' },
+    { id: 'NETWORK_HERO_BANNER', name: 'Network Page Banner', category: 'network' }
 ];
 
 const SPECIAL_IDS = [
-    { id: 'home_hero_banner', default: { image_url: "", overlay_opacity: "0.6" }, category: 'home' },
-    { id: 'about_hero_banner', default: { image_url: "", overlay_opacity: "0.6" }, category: 'about' },
-    { id: 'practice_areas_hero_banner', default: { image_url: "", overlay_opacity: "0.6" }, category: 'practice-areas' },
-    { id: 'insights_hero_banner', default: { image_url: "", overlay_opacity: "0.6" }, category: 'insights' },
-    { id: 'news_hero_banner', default: { image_url: "", overlay_opacity: "0.6" }, category: 'news' },
-    { id: 'network_hero_banner', default: { image_url: "", overlay_opacity: "0.6" }, category: 'network' },
-    { id: 'home_video_url', default: { url: "", title: "Watch Our Story: Legal Excellence Across Africa" }, category: 'home' }
+    { id: 'HOME_HERO_BANNER', default: { image_url: "", overlay_opacity: "0.6" }, category: 'home' },
+    { id: 'ABOUT_HERO_BANNER', default: { image_url: "", overlay_opacity: "0.6" }, category: 'about' },
+    { id: 'PRACTICE_AREAS_HERO_BANNER', default: { image_url: "", overlay_opacity: "0.6" }, category: 'practice-areas' },
+    { id: 'INSIGHTS_HERO_BANNER', default: { image_url: "", overlay_opacity: "0.6" }, category: 'insights' },
+    { id: 'NEWS_HERO_BANNER', default: { image_url: "", overlay_opacity: "0.6" }, category: 'news' },
+    { id: 'NETWORK_HERO_BANNER', default: { image_url: "", overlay_opacity: "0.6" }, category: 'network' },
+    { id: 'HOME_VIDEO_URL', default: { url: "", title: "Watch Our Story: Legal Excellence Across Africa" }, category: 'home' }
 ];
 
 export default function SiteSettings() {
@@ -45,7 +45,7 @@ export default function SiteSettings() {
     const [uploading, setUploading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [currentUser, setCurrentUser] = useState<{ email?: string; role?: string } | null>(null);
-    const [activeBannerTab, setActiveBannerTab] = useState('home_hero_banner');
+    const [activeBannerTab, setActiveBannerTab] = useState('HOME_HERO_BANNER');
 
     useEffect(() => {
         fetchConfigs();
@@ -89,25 +89,39 @@ export default function SiteSettings() {
         if (error) {
             setMessage({ type: 'error', text: "Failed to load settings" });
         } else {
-            let loadedConfigs = data || [];
+            // Map configuration IDs to uppercase for casing normalization while retaining originalId for SQL updates
+            let loadedConfigs = (data || []).map(c => ({
+                ...c,
+                originalId: c.id,
+                id: c.id.toUpperCase()
+            }));
 
-            // Self-heal each special key if it's missing from the database
+            // Self-heal each special key if it's missing from the database (checking case-insensitively)
             for (const specialDef of SPECIAL_IDS) {
                 const existingConfig = loadedConfigs.find(c => c.id === specialDef.id);
 
                 if (!existingConfig) {
                     const newConfig = {
                         id: specialDef.id,
+                        originalId: specialDef.id,
                         value: specialDef.default,
                         category: specialDef.category
                     };
                     const { data: insertedData, error: insertError } = await supabase
                         .from('site_config')
-                        .insert([newConfig])
+                        .insert([{
+                            id: specialDef.id,
+                            value: specialDef.default,
+                            category: specialDef.category
+                        }])
                         .select();
 
                     if (!insertError && insertedData && insertedData[0]) {
-                        loadedConfigs = [...loadedConfigs, insertedData[0]];
+                        loadedConfigs = [...loadedConfigs, {
+                            ...insertedData[0],
+                            originalId: insertedData[0].id,
+                            id: insertedData[0].id.toUpperCase()
+                        }];
                     } else {
                         loadedConfigs = [...loadedConfigs, newConfig];
                     }
@@ -144,7 +158,7 @@ export default function SiteSettings() {
 
     const handleVideoChange = (field: string, value: string) => {
         setConfigs(configs.map(c => {
-            if (c.id === 'home_video_url') {
+            if (c.id === 'HOME_VIDEO_URL') {
                 return {
                     ...c,
                     value: { ...c.value, [field]: value }
@@ -163,7 +177,7 @@ export default function SiteSettings() {
 
         try {
             const fileExt = file.name.split('.').pop();
-            const fileName = `${activeBannerTab}_${Date.now()}.${fileExt}`;
+            const fileName = `${activeBannerTab.toLowerCase()}_${Date.now()}.${fileExt}`;
             const filePath = `banners/${fileName}`;
 
             const { error: uploadError } = await supabase.storage
@@ -205,7 +219,7 @@ export default function SiteSettings() {
                 const { error } = await supabase
                     .from('site_config')
                     .update({ value: config.value })
-                    .eq('id', config.id);
+                    .eq('id', config.originalId || config.id);
 
                 if (error) throw error;
             }
@@ -224,7 +238,7 @@ export default function SiteSettings() {
     );
 
     const activeBannerConfig = configs.find(c => c.id === activeBannerTab);
-    const videoConfig = configs.find(c => c.id === 'home_video_url');
+    const videoConfig = configs.find(c => c.id === 'HOME_VIDEO_URL');
     const filteredConfigs = configs.filter(c => !SPECIAL_IDS.some(s => s.id === c.id));
     const categories = Array.from(new Set(filteredConfigs.map(c => c.category)));
     const youtubeId = videoConfig ? getYouTubeId(videoConfig.value.url) : null;
@@ -363,37 +377,37 @@ export default function SiteSettings() {
 
                                             {/* Preview text overlay to simulate real landing page */}
                                             <div className="absolute inset-0 flex flex-col justify-center px-6 z-10 text-white pointer-events-none">
-                                                {activeBannerTab === 'home_hero_banner' && (
+                                                {activeBannerTab === 'HOME_HERO_BANNER' && (
                                                     <>
                                                         <p className="text-[5px] uppercase tracking-[0.3em] text-secondary font-black">Africa's Premier Legal Collaboration</p>
                                                         <p className="text-sm font-serif font-black leading-tight mt-1">Expertise & Justice</p>
                                                     </>
                                                 )}
-                                                {activeBannerTab === 'about_hero_banner' && (
+                                                {activeBannerTab === 'ABOUT_HERO_BANNER' && (
                                                     <>
                                                         <p className="text-[5px] uppercase tracking-[0.3em] text-secondary font-black">Our Firm</p>
                                                         <p className="text-sm font-serif font-black leading-tight mt-1">About Pan Afric</p>
                                                     </>
                                                 )}
-                                                {activeBannerTab === 'practice_areas_hero_banner' && (
+                                                {activeBannerTab === 'PRACTICE_AREAS_HERO_BANNER' && (
                                                     <>
                                                         <p className="text-[5px] uppercase tracking-[0.3em] text-secondary font-black">Our Expertise</p>
                                                         <p className="text-sm font-serif font-black leading-tight mt-1">Practice Areas</p>
                                                     </>
                                                 )}
-                                                {activeBannerTab === 'insights_hero_banner' && (
+                                                {activeBannerTab === 'INSIGHTS_HERO_BANNER' && (
                                                     <>
                                                         <p className="text-[5px] uppercase tracking-[0.3em] text-secondary font-black">Knowledge Hub</p>
                                                         <p className="text-sm font-serif font-black leading-tight mt-1">Legal Insights</p>
                                                     </>
                                                 )}
-                                                {activeBannerTab === 'news_hero_banner' && (
+                                                {activeBannerTab === 'NEWS_HERO_BANNER' && (
                                                     <>
                                                         <p className="text-[5px] uppercase tracking-[0.3em] text-secondary font-black">Stay Informed</p>
                                                         <p className="text-sm font-serif font-black leading-tight mt-1">Latest Updates</p>
                                                     </>
                                                 )}
-                                                {activeBannerTab === 'network_hero_banner' && (
+                                                {activeBannerTab === 'NETWORK_HERO_BANNER' && (
                                                     <>
                                                         <p className="text-[5px] uppercase tracking-[0.3em] text-secondary font-black">Legal Network</p>
                                                         <p className="text-sm font-serif font-black leading-tight mt-1">Member Directory</p>

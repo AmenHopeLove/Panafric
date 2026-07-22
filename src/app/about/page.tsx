@@ -9,8 +9,9 @@ export default function About() {
     const { t, config } = useLanguage();
     const [leadership, setLeadership] = useState<any[]>([]);
     
-    const bannerUrl = config?.about_hero_banner?.image_url || "";
-    const overlayOpacity = parseFloat(config?.about_hero_banner?.overlay_opacity || "0.6");
+    const aboutBanner = config?.ABOUT_HERO_BANNER || config?.about_hero_banner;
+    const bannerUrl = aboutBanner?.image_url || "";
+    const overlayOpacity = parseFloat(aboutBanner?.overlay_opacity || "0.6");
     const [loading, setLoading] = useState(true);
 
     // MOCK LEADERSHIP for fallback
