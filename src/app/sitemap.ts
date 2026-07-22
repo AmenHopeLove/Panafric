@@ -1,5 +1,5 @@
 export default async function sitemap() {
-  const baseUrl = 'https://palf-web-platform.vercel.app';
+  const baseUrl = 'https://www.panafriclawfirm.com';
 
   const routes = [
     '',

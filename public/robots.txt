@@ -3,4 +3,4 @@ Allow: /
 Disallow: /(portal)
 Disallow: /api/
 
-Sitemap: https://palf-web-platform.vercel.app/sitemap.xml
+Sitemap: https://www.panafriclawfirm.com/sitemap.xml
