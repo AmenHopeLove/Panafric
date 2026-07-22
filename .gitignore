@@ -39,3 +39,6 @@ temp_deploy/
 page.html
 cookies.txt
 test_file.txt
+
+.vercel
+.env*
