@@ -1,4 +1,4 @@
-import { groq } from '@ai-sdk/groq';
+import { google } from '@ai-sdk/google';
 import { generateText } from 'ai';
 import { supabase } from '@/lib/supabase-client';
 
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
             return new Response(JSON.stringify({ error: "Article not found" }), { status: 404 });
         }
 
-        const model = groq('llama-3.1-8b-instant');
+        const model = google('gemini-2.5-flash');
 
         const prompt = `
             You are a social media manager for Pan Afric Law Firm (PALF).

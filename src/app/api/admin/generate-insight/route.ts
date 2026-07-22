@@ -1,4 +1,4 @@
-import { groq } from '@ai-sdk/groq';
+import { google } from '@ai-sdk/google';
 import { generateText } from 'ai';
 import { supabase } from '@/lib/supabase-client';
 import { getRandomUnsplashImage } from '@/lib/unsplash-pool';
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
             return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
         }
 
-        const model = groq('llama-3.1-8b-instant');
+        const model = google('gemini-2.5-flash');
 
         const generateSafe = async (prompt: string) => {
             const { text } = await generateText({ 
